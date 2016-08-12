@@ -1,6 +1,6 @@
 #include "readcamerathread.h"
 
-ReadCameraThread::ReadCameraThread(): keep_reading(true), roi_exists(false)
+ReadCameraThread::ReadCameraThread(): frame(NULL), keep_reading(true), roi_exists(false)
 {
 
 }
@@ -33,6 +33,7 @@ void ReadCameraThread::run() {
         }
         if (frame) {
             delete frame;
+            frame = 0;
         }
         frame = new Mat(img);
         emit newFrame(frame);
