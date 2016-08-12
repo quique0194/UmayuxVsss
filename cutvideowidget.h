@@ -23,6 +23,7 @@ public:
 
     QRect selection;
     QRect roi; // Region of interest
+    float factor;
 protected:
     void mousePressEvent(QMouseEvent *ev);
     void mouseMoveEvent(QMouseEvent *ev);
