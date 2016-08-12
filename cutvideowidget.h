@@ -1,6 +1,7 @@
 #ifndef CUTVIDEOWIDGET_H
 #define CUTVIDEOWIDGET_H
 
+#include <iostream>
 #include <QImage>
 #include <QPixmap>
 #include <QLabel>
@@ -8,6 +9,7 @@
 #include <QMouseEvent>
 #include <opencv2/opencv.hpp>
 
+using namespace std;
 using namespace cv;
 
 
@@ -18,13 +20,23 @@ public:
     CutVideoWidget();
     CutVideoWidget(QFrame* frame);
     ~CutVideoWidget();
+
+    QRect selection;
+    QRect roi; // Region of interest
 protected:
     void mousePressEvent(QMouseEvent *ev);
     void mouseMoveEvent(QMouseEvent *ev);
+    void mouseReleaseEvent(QMouseEvent *ev);
 private:
-    QRect rect;
+    bool selecting;
+signals:
+    void newSelection();
+    void newRoi(QRect*);
+    void resetRoi();
 public slots:
     void setFrame(Mat* frame);
+    void cut();
+    void reset();
 };
 
 #endif // CUTVIDEOWIDGET_H

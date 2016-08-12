@@ -7,8 +7,13 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    rct.start();
     QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->cutVideo, SLOT(setFrame(Mat*)));
+    QObject::connect(ui->cutVideo, SIGNAL(newRoi(QRect*)), &rct, SLOT(setRoi(QRect*)));
+    QObject::connect(ui->cutVideo, SIGNAL(resetRoi()), &rct, SLOT(resetRoi()));
+    QObject::connect(ui->cutVideo, SIGNAL(newSelection()), ui->cutBtn, SLOT(enable()));
+    QObject::connect(ui->cutVideo, SIGNAL(newRoi(QRect*)), ui->cutBtn, SLOT(disable()));
+    QObject::connect(ui->cutVideo, SIGNAL(resetRoi()), ui->cutBtn, SLOT(disable()));
+    rct.start();
 }
 
 MainWindow::~MainWindow()
@@ -16,4 +21,14 @@ MainWindow::~MainWindow()
     rct.customStop();
     rct.wait();
     delete ui;
+}
+
+void MainWindow::on_cutBtn_clicked()
+{
+    ui->cutVideo->cut();
+}
+
+void MainWindow::on_resetBtn_clicked()
+{
+    ui->cutVideo->reset();
 }

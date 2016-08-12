@@ -62,7 +62,10 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QPushButton" name="cutBtn">
+           <widget class="EasyDisableBtn" name="cutBtn">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Cut</string>
             </property>
@@ -109,6 +112,11 @@
    <class>CutVideoWidget</class>
    <extends>QLabel</extends>
    <header>cutvideowidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>EasyDisableBtn</class>
+   <extends>QPushButton</extends>
+   <header>easydisablebtn.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
