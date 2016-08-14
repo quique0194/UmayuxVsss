@@ -26,7 +26,6 @@ public:
     float factor;
     QRect selection;
     QRect roi; // Region of interest
-    QImage* area;
 private:
     QPointF pointToGlobal(int x, int y);
 
@@ -43,8 +42,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *ev);
 signals:
     void newSelection();
-    void newArea(QImage*);
-    void newArea(QPixmap);
+    void newArea(QImage);
     void resetRoi();
 public slots:
     void selectArea();

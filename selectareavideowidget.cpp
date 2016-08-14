@@ -1,24 +1,22 @@
 #include "selectareavideowidget.h"
 
-SelectAreaVideoWidget::SelectAreaVideoWidget(): zoom(1.0), center(QPointF(0.5, 0.5)), area(NULL), selecting(false)
+SelectAreaVideoWidget::SelectAreaVideoWidget(): zoom(1.0), center(QPointF(0.5, 0.5)), selecting(false)
 {
 
 }
 
-SelectAreaVideoWidget::SelectAreaVideoWidget(QWidget *parent): QLabel(parent), zoom(1.0), center(QPointF(0.5, 0.5)), area(NULL), selecting(false)
+SelectAreaVideoWidget::SelectAreaVideoWidget(QWidget *parent): QLabel(parent), zoom(1.0), center(QPointF(0.5, 0.5)), selecting(false)
 {
 }
 
 
 SelectAreaVideoWidget::~SelectAreaVideoWidget()
 {
-    if (area) {
-        delete area;
-    }
+
 }
 
 QPointF SelectAreaVideoWidget::pointToGlobal(int x, int y) {
-    QPointF click((double)x/last_image.size().width(), (double)y/last_image.size().height());
+    QPointF click((double)x/size().width(), (double)y/size().height());
     QPointF delta = click - QPointF(0.5, 0.5);
     delta *= (1.0/zoom);
     click = center + delta;
@@ -34,16 +32,21 @@ void SelectAreaVideoWidget::wheelEvent(QWheelEvent * ev)
     int y = ev->pos().y();
 
     QPointF click = pointToGlobal(x, y);
-    QPointF delta = QPointF(0.5, 0.5) - click;
+    QPointF delta = center - click;
+    float zoom_delta;
     if (ev->angleDelta().y() > 0) {
-        zoom *= 1.25;
+        zoom_delta = 1.25;
     }
     else {
-        zoom *= 0.8;
+        zoom_delta = 0.8;
     }
-    zoom = max(zoom, 1.0);
+    zoom *= zoom_delta;
+    if (zoom < 1) {
+        zoom = 1;
+        zoom_delta = 1;
+    }
 
-    delta *= (1.0/zoom);
+    delta /= zoom_delta;
     center = click + delta;
 
     QSize s = 0.5*(1.0/zoom)*last_image.size();
@@ -93,15 +96,8 @@ void SelectAreaVideoWidget::selectArea()
     int h = last_frame.size().height();
     roi.setCoords(tl.x()*w, tl.y()*h, br.x()*w, br.y()*h);
     QImage my_area = last_frame.copy(roi);
-    if (area) {
-        delete area;
-        area = NULL;
-    }
-    area = new QImage(my_area);
-    selection = QRect();
     roi = QRect();
-    emit newArea(area);
-    emit newArea(QPixmap::fromImage(my_area));
+    emit newArea(my_area);
 }
 
 void SelectAreaVideoWidget::reset()

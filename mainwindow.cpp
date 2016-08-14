@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->cutVideo, SIGNAL(newRoi(QRect*)), ui->cutBtn, SLOT(disable()));
     QObject::connect(ui->cutVideo, SIGNAL(resetRoi()), ui->cutBtn, SLOT(disable()));
 
-    QObject::connect(ui->selectArea, SIGNAL(newArea(QPixmap)), ui->showFiltered, SLOT(setPixmap(QPixmap)));
+    QObject::connect(ui->selectArea, SIGNAL(newArea(QImage)), ui->showFiltered, SLOT(setImage(QImage)));
     rct.start();
 }
 
