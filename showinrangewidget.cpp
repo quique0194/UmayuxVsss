@@ -1,6 +1,6 @@
 #include "showinrangewidget.h"
 
-ShowInRangeWidget::ShowInRangeWidget(QWidget* parent): QLabel(parent)
+ShowInRangeWidget::ShowInRangeWidget(QWidget* parent): QLabel(parent), calib(NULL)
 {
 
 }
@@ -17,6 +17,9 @@ void ShowInRangeWidget::newCalibration(Calibration *c)
 
 void ShowInRangeWidget::setFrame(Mat *frame)
 {
+    if (calib == NULL) {
+        return;
+    }
     Mat binarized;
     inRange(*frame, Scalar(calib->data[0], calib->data[1], calib->data[2]),
             Scalar(calib->data[3], calib->data[4], calib->data[5]), binarized);

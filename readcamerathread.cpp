@@ -17,6 +17,7 @@ void ReadCameraThread::run() {
     VideoCapture cap(0);
     while (keep_reading) {
         Mat img;
+        img.data = NULL;
         cap >> img;
         if (img.data == NULL || img.cols == 0 || img.rows == 0) {
             cout << "Camera returned null data" << endl;
