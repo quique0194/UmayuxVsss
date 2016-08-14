@@ -1,11 +1,7 @@
 #include "selectareavideowidget.h"
 
-SelectAreaVideoWidget::SelectAreaVideoWidget(): zoom(1.0), center(QPointF(0.5, 0.5)), selecting(false)
-{
-
-}
-
-SelectAreaVideoWidget::SelectAreaVideoWidget(QWidget *parent): QLabel(parent), zoom(1.0), center(QPointF(0.5, 0.5)), selecting(false)
+SelectAreaVideoWidget::SelectAreaVideoWidget(QWidget *parent): QLabel(parent),
+    zoom(1.0), center(QPointF(0.5, 0.5)), selecting(false), dragging(false)
 {
 }
 
@@ -62,25 +58,69 @@ void SelectAreaVideoWidget::wheelEvent(QWheelEvent * ev)
 
 void SelectAreaVideoWidget::mousePressEvent(QMouseEvent *ev)
 {
-    if (roi.isNull() && ev->button() == Qt::LeftButton) {
+    if (ev->button() == Qt::LeftButton) {
+        if (fix_image.isNull()) {
+            fix_image = last_image;
+        }
+        selecting = true;
         selection.setTopLeft(QPoint(ev->pos().x(), ev->pos().y()));
         selection.setBottomRight(QPoint(ev->pos().x(), ev->pos().y()));
-        selecting = true;
+    }
+    else if (ev->button() == Qt::RightButton) {
+        dragging = true;
+        px = -1;
+        py = -1;
     }
 }
 
 void SelectAreaVideoWidget::mouseMoveEvent(QMouseEvent *ev)
 {
-    if (roi.isNull() && selecting) {
+    if (selecting) {
         selection.setBottomRight(QPoint(ev->pos().x(), ev->pos().y()));
     }
+    else if (dragging) {
+        if (fix_image.isNull()) {
+            fix_image = last_image;
+        }
+        float dx, dy;
+        if (px == -1) {
+            dx = 0;
+            dy = 0;
+        } else {
+            dx = ev->pos().x() - px;
+            dy = ev->pos().y() - py;
+        }
+        px = ev->pos().x();
+        py = ev->pos().y();
+
+        QPointF dg(dx/size().width(), dy/size().height());
+        dg *= (1.0/zoom);
+        center = center - dg;
+
+        QSize s = 0.5*(1.0/zoom)*last_image.size();
+        QRect rect;
+        rect.setCoords(round(center.x()*last_image.size().width() - s.width()),
+                       round(center.y()*last_image.size().height() - s.height()),
+                       round(center.x()*last_image.size().width() + s.width()),
+                       round(center.y()*last_image.size().height() + s.height()));
+        fix_image = last_image.copy(rect);
+        fix_image = fix_image.scaled(baseSize(), Qt::KeepAspectRatio);
+    }
+    else if (!dragging) {
+        px = -1;
+        py = -1;
+    }
+
 }
 
 void SelectAreaVideoWidget::mouseReleaseEvent(QMouseEvent *ev)
 {
-    if (roi.isNull() && ev->button() == Qt::LeftButton) {
+    if (ev->button() == Qt::LeftButton) {
         selecting = false;
         emit newSelection();
+    }
+    else if (dragging) {
+        dragging = false;
     }
 }
 
@@ -103,7 +143,6 @@ void SelectAreaVideoWidget::selectArea()
 void SelectAreaVideoWidget::reset()
 {
     selection = QRect();
-    roi = QRect();
     emit resetRoi();
 }
 

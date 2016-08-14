@@ -19,8 +19,7 @@ class SelectAreaVideoWidget : public QLabel
 {
     Q_OBJECT
 public:
-    SelectAreaVideoWidget();
-    SelectAreaVideoWidget(QWidget* parent);
+    SelectAreaVideoWidget(QWidget* parent=0);
     ~SelectAreaVideoWidget();
 
     float factor;
@@ -35,6 +34,9 @@ private:
     QImage fix_image;
     QImage last_frame;
     bool selecting;
+    bool dragging;
+    int px;
+    int py;
 protected:
     void wheelEvent(QWheelEvent *ev);
     void mousePressEvent(QMouseEvent *ev);
