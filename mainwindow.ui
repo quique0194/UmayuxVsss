@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>611</width>
-    <height>352</height>
+    <width>612</width>
+    <height>410</height>
    </rect>
   </property>
   <property name="baseSize">
@@ -129,6 +129,100 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
+         <widget class="QComboBox" name="currentCalibColor">
+          <item>
+           <property name="text">
+            <string>Blue</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Yellow</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Orange</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Red</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Green</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Skyblue</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="slider0">
+          <property name="maximum">
+           <number>255</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="slider1">
+          <property name="maximum">
+           <number>255</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="slider2">
+          <property name="maximum">
+           <number>255</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="slider3">
+          <property name="maximum">
+           <number>255</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="slider4">
+          <property name="maximum">
+           <number>255</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="slider5">
+          <property name="maximum">
+           <number>255</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QFrame" name="frame_3">
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -187,16 +281,41 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="ShowInRangeWidget" name="showBinarized">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>400</width>
+               <height>300</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::Box</enum>
+             </property>
+             <property name="text">
+              <string>Witing for camera</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
         <item>
          <widget class="QFrame" name="frame_4">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>30</height>
-           </size>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::RightToLeft</enum>
           </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -212,16 +331,16 @@
             <number>3</number>
            </property>
            <item>
-            <widget class="QPushButton" name="selectAreaBtn">
+            <widget class="QPushButton" name="cancelAreaBtn">
              <property name="text">
-              <string>Select</string>
+              <string>Cancel</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="cancelAreaBtn">
+            <widget class="QPushButton" name="selectAreaBtn">
              <property name="text">
-              <string>Cancel</string>
+              <string>Select</string>
              </property>
             </widget>
            </item>
@@ -239,7 +358,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>611</width>
+     <width>612</width>
      <height>21</height>
     </rect>
    </property>
@@ -275,6 +394,11 @@
    <class>ShowImageWidget</class>
    <extends>QLabel</extends>
    <header>showimagewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ShowInRangeWidget</class>
+   <extends>QLabel</extends>
+   <header>showinrangewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
