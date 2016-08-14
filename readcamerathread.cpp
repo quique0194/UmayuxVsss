@@ -1,14 +1,15 @@
 #include "readcamerathread.h"
 
-ReadCameraThread::ReadCameraThread(): frame(NULL), keep_reading(true), roi_exists(false)
+ReadCameraThread::ReadCameraThread(): keep_reading(true), roi_exists(false)
 {
 
 }
 
 ReadCameraThread::~ReadCameraThread()
 {
-    if (frame) {
-        delete frame;
+    while (!frames.empty()) {
+        delete frames.front();
+        frames.pop();
     }
 }
 
@@ -31,12 +32,13 @@ void ReadCameraThread::run() {
             Mat cropped = img(cv_roi);
             cropped.copyTo(img);
         }
-        if (frame) {
-            delete frame;
-            frame = 0;
+        if (frames.size() > 30) {
+            delete frames.front();
+            frames.pop();
         }
-        frame = new Mat(img);
-        emit newFrame(frame);
+        Mat* ptr = new Mat(img);
+        frames.push(ptr);
+        emit newFrame(ptr);
     }
     cout << "End of read camera thread" << endl;
 }

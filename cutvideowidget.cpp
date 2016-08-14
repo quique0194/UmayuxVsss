@@ -42,11 +42,11 @@ void CutVideoWidget::mouseReleaseEvent(QMouseEvent *ev)
 void CutVideoWidget::setFrame(Mat *frame)
 {
     QImage qimg_from_frame((uchar*)frame->data, frame->cols, frame->rows, frame->step, QImage::Format_RGB888);
-    factor = max((float)frame->cols/baseSize().width(), (float)frame->rows/baseSize().height());
-    QImage qimg = qimg_from_frame.copy();
-    if (qimg.isNull()) {
+    if (qimg_from_frame.isNull()) {
         return;
     }
+    factor = max((float)frame->cols/baseSize().width(), (float)frame->rows/baseSize().height());
+    QImage qimg = qimg_from_frame.copy();
     qimg = qimg.scaled(baseSize().width(), baseSize().height(), Qt::KeepAspectRatio);
     setMaximumSize(qimg.size());
     setMinimumSize(qimg.size());

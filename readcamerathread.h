@@ -2,6 +2,7 @@
 #define READCAMERATHREAD_H
 
 #include <iostream>
+#include <queue>
 #include <QtCore>
 #include <QRect>
 #include <opencv2/opencv.hpp>
@@ -18,7 +19,7 @@ public:
     ~ReadCameraThread();
     void customStop();
 
-    Mat* frame;
+    queue<Mat*> frames;
 private:
     void run();
 

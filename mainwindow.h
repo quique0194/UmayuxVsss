@@ -26,6 +26,8 @@ private slots:
 
     void on_resetBtn_clicked();
 
+    void on_selectAreaBtn_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

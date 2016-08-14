@@ -1,18 +1,28 @@
 #include "selectareavideowidget.h"
 
-SelectAreaVideoWidget::SelectAreaVideoWidget(): zoom(1.0), center(QPointF(0.5, 0.5))
+SelectAreaVideoWidget::SelectAreaVideoWidget(): zoom(1.0), center(QPointF(0.5, 0.5)), area(NULL), selecting(false)
 {
 
 }
 
-SelectAreaVideoWidget::SelectAreaVideoWidget(QWidget *parent): QLabel(parent), zoom(1.0), center(QPointF(0.5, 0.5))
+SelectAreaVideoWidget::SelectAreaVideoWidget(QWidget *parent): QLabel(parent), zoom(1.0), center(QPointF(0.5, 0.5)), area(NULL), selecting(false)
 {
 }
 
 
 SelectAreaVideoWidget::~SelectAreaVideoWidget()
 {
+    if (area) {
+        delete area;
+    }
+}
 
+QPointF SelectAreaVideoWidget::pointToGlobal(int x, int y) {
+    QPointF click((double)x/last_image.size().width(), (double)y/last_image.size().height());
+    QPointF delta = click - QPointF(0.5, 0.5);
+    delta *= (1.0/zoom);
+    click = center + delta;
+    return click;
 }
 
 void SelectAreaVideoWidget::wheelEvent(QWheelEvent * ev)
@@ -22,11 +32,9 @@ void SelectAreaVideoWidget::wheelEvent(QWheelEvent * ev)
     }
     int x = ev->pos().x();
     int y = ev->pos().y();
-    QPointF click((double)x/last_image.size().width(), (double)y/last_image.size().height());
-    QPointF delta = click - QPointF(0.5, 0.5);
-    delta *= (1.0/zoom);
-    click = center + delta;
-    delta = QPointF(0.5, 0.5) - click;
+
+    QPointF click = pointToGlobal(x, y);
+    QPointF delta = QPointF(0.5, 0.5) - click;
     if (ev->angleDelta().y() > 0) {
         zoom *= 1.25;
     }
@@ -48,31 +56,85 @@ void SelectAreaVideoWidget::wheelEvent(QWheelEvent * ev)
     fix_image = fix_image.scaled(baseSize(), Qt::KeepAspectRatio);
 }
 
+
+void SelectAreaVideoWidget::mousePressEvent(QMouseEvent *ev)
+{
+    if (roi.isNull() && ev->button() == Qt::LeftButton) {
+        selection.setTopLeft(QPoint(ev->pos().x(), ev->pos().y()));
+        selection.setBottomRight(QPoint(ev->pos().x(), ev->pos().y()));
+        selecting = true;
+    }
+}
+
+void SelectAreaVideoWidget::mouseMoveEvent(QMouseEvent *ev)
+{
+    if (roi.isNull() && selecting) {
+        selection.setBottomRight(QPoint(ev->pos().x(), ev->pos().y()));
+    }
+}
+
+void SelectAreaVideoWidget::mouseReleaseEvent(QMouseEvent *ev)
+{
+    if (roi.isNull() && ev->button() == Qt::LeftButton) {
+        selecting = false;
+        emit newSelection();
+    }
+}
+
+void SelectAreaVideoWidget::selectArea()
+{
+    roi = selection;
+    selection = QRect();
+    int x1, y1, x2, y2;
+    roi.getCoords(&x1, &y1, &x2, &y2);
+    QPointF tl = pointToGlobal(x1, y1);
+    QPointF br = pointToGlobal(x2, y2);
+    int w = last_frame.size().width();
+    int h = last_frame.size().height();
+    roi.setCoords(tl.x()*w, tl.y()*h, br.x()*w, br.y()*h);
+    QImage my_area = last_frame.copy(roi);
+    if (area) {
+        delete area;
+        area = NULL;
+    }
+    area = new QImage(my_area);
+    selection = QRect();
+    roi = QRect();
+    emit newArea(area);
+    emit newArea(QPixmap::fromImage(my_area));
+}
+
+void SelectAreaVideoWidget::reset()
+{
+    selection = QRect();
+    roi = QRect();
+    emit resetRoi();
+}
+
 void SelectAreaVideoWidget::setFrame(Mat *frame)
 {
+    QPixmap pix;
     if (fix_image.isNull()) {
         QImage qimg_from_frame((uchar*)frame->data, frame->cols, frame->rows, frame->step, QImage::Format_RGB888);
-        factor = max((float)frame->cols/baseSize().width(), (float)frame->rows/baseSize().height());
-        QImage qimg = qimg_from_frame.copy();
-        if (qimg.isNull()) {
+        if (qimg_from_frame.isNull()) {
             return;
         }
+        factor = max((float)frame->cols/baseSize().width(), (float)frame->rows/baseSize().height());
+        QImage qimg = qimg_from_frame.copy();
         qimg = qimg.scaled(baseSize(), Qt::KeepAspectRatio);
+        last_frame = qimg_from_frame.copy();
         last_image = qimg;
-        resize(qimg.size());
-        QPixmap pix = QPixmap::fromImage(qimg);
-    //    QPainter paint(&pix);
-    //    paint.setPen(Qt::red);
-    //    if (selection.isValid()) {
-    //        paint.drawRect(selection);
-    //    }
-        setPixmap(pix);
+        pix = QPixmap::fromImage(qimg);
     }
     else {
-        QPixmap pix = QPixmap::fromImage(fix_image);
-        resize(fix_image.size());
-        setPixmap(pix);
+        pix = QPixmap::fromImage(fix_image);
     }
+    QPainter paint(&pix);
+    paint.setPen(Qt::red);
+    if (selection.isValid()) {
+        paint.drawRect(selection);
+    }
+    setPixmap(pix);
 }
 
 void SelectAreaVideoWidget::selectNewArea()
