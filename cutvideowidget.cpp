@@ -51,7 +51,6 @@ void CutVideoWidget::setFrame(Mat *frame)
 {
     QImage qimg((uchar*)frame->data, frame->cols, frame->rows, frame->step, QImage::Format_RGB888);
     qimg = qimg.copy();
-    cout << "Factor " << factor << endl;
     if (img) {
         delete img;
     }
