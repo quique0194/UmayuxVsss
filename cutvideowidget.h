@@ -8,6 +8,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QPaintEvent>
+#include <QTime>
 #include <opencv2/opencv.hpp>
 
 using namespace std;

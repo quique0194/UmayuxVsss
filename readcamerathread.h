@@ -5,6 +5,7 @@
 #include <queue>
 #include <QtCore>
 #include <QRect>
+#include <QTime>
 #include <opencv2/opencv.hpp>
 
 using namespace std;
