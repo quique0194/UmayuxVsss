@@ -67,6 +67,9 @@ void SelectAreaVideoWidget::mousePressEvent(QMouseEvent *ev)
         selection.setBottomRight(QPoint(ev->pos().x(), ev->pos().y()));
     }
     else if (ev->button() == Qt::RightButton) {
+        if (fix_image.isNull()) {
+            fix_image = last_image;
+        }
         dragging = true;
         px = -1;
         py = -1;
@@ -79,9 +82,6 @@ void SelectAreaVideoWidget::mouseMoveEvent(QMouseEvent *ev)
         selection.setBottomRight(QPoint(ev->pos().x(), ev->pos().y()));
     }
     else if (dragging) {
-        if (fix_image.isNull()) {
-            fix_image = last_image;
-        }
         float dx, dy;
         if (px == -1) {
             dx = 0;
@@ -134,7 +134,7 @@ void SelectAreaVideoWidget::selectArea()
     QPointF br = pointToGlobal(x2, y2);
     int w = last_frame.size().width();
     int h = last_frame.size().height();
-    roi.setCoords(tl.x()*w, tl.y()*h, br.x()*w, br.y()*h);
+    roi.setCoords(ceil(tl.x()*w), ceil(tl.y()*h), floor(br.x()*w), floor(br.y()*h));
     QImage my_area = last_frame.copy(roi);
     roi = QRect();
     emit newArea(my_area);
@@ -142,8 +142,10 @@ void SelectAreaVideoWidget::selectArea()
 
 void SelectAreaVideoWidget::reset()
 {
+    fix_image = QImage();
     selection = QRect();
-    emit resetRoi();
+    center = QPointF(0.5, 0.5);
+    zoom = 1;
 }
 
 void SelectAreaVideoWidget::setFrame(Mat *frame)

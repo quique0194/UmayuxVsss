@@ -13,7 +13,6 @@ class ShowInRangeWidget : public QLabel
 public:
     ShowInRangeWidget(QWidget* parent);
     ~ShowInRangeWidget();
-private:
     Calibration* calib;
 public slots:
     void newCalibration(Calibration* calib);

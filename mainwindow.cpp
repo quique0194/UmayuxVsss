@@ -6,7 +6,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    currentCalib = &blueCalib;
 
     QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->cutVideo, SLOT(setFrame(Mat*)));
     QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->selectArea, SLOT(setFrame(Mat*)));
@@ -19,14 +18,24 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->cutVideo, SIGNAL(resetRoi()), ui->cutBtn, SLOT(disable()));
 
     QObject::connect(ui->selectArea, SIGNAL(newArea(QImage)), ui->showFiltered, SLOT(setImage(QImage)));
-    QObject::connect(ui->selectArea, SIGNAL(newArea(QImage)), currentCalib, SLOT(newRegion(QImage)));
+    QObject::connect(ui->selectArea, SIGNAL(newArea(QImage)), &calibHandler, SLOT(newRegion(QImage)));
 
-    QObject::connect(ui->currentCalibColor, SIGNAL(currentIndexChanged(QString)), this, SLOT(change_current_calib(QString)));
+    QObject::connect(ui->currentCalibColor, SIGNAL(currentIndexChanged(QString)), &calibHandler, SLOT(changeCurrentCalib(QString)));
 
-    QObject::connect(currentCalib, SIGNAL(newCalibration(Calibration*)),
-                     this, SLOT(new_calib(Calibration*)));
-    QObject::connect(currentCalib, SIGNAL(newCalibration(Calibration*)),
-                     ui->showBinarized, SLOT(newCalibration(Calibration*)));
+    QObject::connect(&calibHandler, SIGNAL(newCalibration(Calibration*)), this, SLOT(setSliders(Calibration*)));
+    QObject::connect(&calibHandler, SIGNAL(newCalibration(Calibration*)), ui->showBinarized, SLOT(newCalibration(Calibration*)));
+
+    QObject::connect(ui->slider0, SIGNAL(sliderMoved(int)), &calibHandler, SLOT(setX0(int)));
+    QObject::connect(ui->slider1, SIGNAL(sliderMoved(int)), &calibHandler, SLOT(setX1(int)));
+    QObject::connect(ui->slider2, SIGNAL(sliderMoved(int)), &calibHandler, SLOT(setY0(int)));
+    QObject::connect(ui->slider3, SIGNAL(sliderMoved(int)), &calibHandler, SLOT(setY1(int)));
+    QObject::connect(ui->slider4, SIGNAL(sliderMoved(int)), &calibHandler, SLOT(setZ0(int)));
+    QObject::connect(ui->slider5, SIGNAL(sliderMoved(int)), &calibHandler, SLOT(setZ1(int)));
+
+    QObject::connect(ui->saveCalibBtn, SIGNAL(clicked()), &calibHandler, SLOT(save()));
+    QObject::connect(ui->resetAreaBtn, SIGNAL(clicked()), ui->selectArea, SLOT(reset()));
+
+    emit calibHandler.newCalibration(calibHandler.currentCalib);
     rct.start();
 }
 
@@ -52,27 +61,8 @@ void MainWindow::on_selectAreaBtn_clicked()
     ui->selectArea->selectArea();
 }
 
-void MainWindow::change_current_calib(QString calib)
-{
-    cout << "calib " << calib.toStdString() << endl;
 
-    if (calib.toStdString() == "Blue") {
-        currentCalib = &blueCalib;
-    } else if (calib.toStdString() == "Yellow") {
-        currentCalib = &yellowCalib;
-    } else if (calib.toStdString() == "Orange") {
-        currentCalib = &orangeCalib;
-    } else if (calib.toStdString() == "Red") {
-        currentCalib = &redCalib;
-    } else if (calib.toStdString() == "Green") {
-        currentCalib = &greenCalib;
-    } else if (calib.toStdString() == "Skyblue") {
-        currentCalib = &skyblueCalib;
-    }
-    new_calib(currentCalib);
-}
-
-void MainWindow::new_calib(Calibration *calib)
+void MainWindow::setSliders(Calibration *calib)
 {
     ui->slider0->setSliderPosition(calib->data[0]);
     ui->slider1->setSliderPosition(calib->data[3]);
@@ -80,40 +70,4 @@ void MainWindow::new_calib(Calibration *calib)
     ui->slider3->setSliderPosition(calib->data[4]);
     ui->slider4->setSliderPosition(calib->data[2]);
     ui->slider5->setSliderPosition(calib->data[5]);
-}
-
-void MainWindow::on_slider0_sliderMoved(int position)
-{
-    currentCalib->data[0] = position;
-    emit currentCalib->newCalibration(currentCalib);
-}
-
-void MainWindow::on_slider1_sliderMoved(int position)
-{
-    currentCalib->data[3] = position;
-    emit currentCalib->newCalibration(currentCalib);
-}
-
-void MainWindow::on_slider2_sliderMoved(int position)
-{
-    currentCalib->data[1] = position;
-    emit currentCalib->newCalibration(currentCalib);
-}
-
-void MainWindow::on_slider3_sliderMoved(int position)
-{
-    currentCalib->data[4] = position;
-    emit currentCalib->newCalibration(currentCalib);
-}
-
-void MainWindow::on_slider4_sliderMoved(int position)
-{
-    currentCalib->data[2] = position;
-    emit currentCalib->newCalibration(currentCalib);
-}
-
-void MainWindow::on_slider5_sliderMoved(int position)
-{
-    currentCalib->data[5] = position;
-    emit currentCalib->newCalibration(currentCalib);
 }

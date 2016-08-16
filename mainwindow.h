@@ -5,7 +5,7 @@
 #include <QMainWindow>
 #include <QString>
 #include "readcamerathread.h"
-#include "calibration.h"
+#include "calibrationhandler.h"
 
 using namespace std;
 
@@ -30,26 +30,11 @@ private slots:
 
     void on_selectAreaBtn_clicked();
 
-    void change_current_calib(QString calib);
-
-    void new_calib(Calibration* calib);
-
-    void on_slider0_sliderMoved(int position);
-    void on_slider1_sliderMoved(int position);
-    void on_slider2_sliderMoved(int position);
-    void on_slider3_sliderMoved(int position);
-    void on_slider4_sliderMoved(int position);
-    void on_slider5_sliderMoved(int position);
+    void setSliders(Calibration* calib);
 
 private:
     Ui::MainWindow *ui;
-    Calibration blueCalib;
-    Calibration yellowCalib;
-    Calibration orangeCalib;
-    Calibration redCalib;
-    Calibration greenCalib;
-    Calibration skyblueCalib;
-    Calibration* currentCalib;
+    CalibrationHandler calibHandler;
 };
 
 #endif // MAINWINDOW_H
