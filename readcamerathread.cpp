@@ -14,7 +14,7 @@ ReadCameraThread::~ReadCameraThread()
 }
 
 void ReadCameraThread::run() {
-    VideoCapture cap(0);
+    VideoCapture cap(1);
     while (keep_reading) {
         Mat img;
         img.data = NULL;

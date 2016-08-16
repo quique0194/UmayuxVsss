@@ -1,13 +1,8 @@
 #include "cutvideowidget.h"
 
-CutVideoWidget::CutVideoWidget(): selecting(false)
-{
-
-}
-
 CutVideoWidget::CutVideoWidget(QFrame *frame): QLabel(frame), selecting(false)
 {
-
+    img = 0;
 }
 
 CutVideoWidget::~CutVideoWidget()
@@ -39,24 +34,28 @@ void CutVideoWidget::mouseReleaseEvent(QMouseEvent *ev)
     }
 }
 
+void CutVideoWidget::paintEvent(QPaintEvent *ev)
+{
+    if (img) {
+        QPainter paint(this);
+        paint.drawImage(rect(), *img, img->rect());
+        paint.setPen(Qt::red);
+        if (selection.isValid()) {
+            paint.drawRect(selection);
+        }
+    }
+}
+
 void CutVideoWidget::setFrame(Mat *frame)
 {
-    QImage qimg_from_frame((uchar*)frame->data, frame->cols, frame->rows, frame->step, QImage::Format_RGB888);
-    if (qimg_from_frame.isNull()) {
-        return;
+    QImage qimg((uchar*)frame->data, frame->cols, frame->rows, frame->step, QImage::Format_RGB888);
+    qimg = qimg.copy();
+    factor = max((float)frame->cols/width(), (float)frame->rows/height());
+    if (img) {
+        delete img;
     }
-    factor = max((float)frame->cols/baseSize().width(), (float)frame->rows/baseSize().height());
-    QImage qimg = qimg_from_frame.copy();
-    qimg = qimg.scaled(baseSize().width(), baseSize().height(), Qt::KeepAspectRatio);
-    setMaximumSize(qimg.size());
-    setMinimumSize(qimg.size());
-    QPixmap pix = QPixmap::fromImage(qimg);
-    QPainter paint(&pix);
-    paint.setPen(Qt::red);
-    if (selection.isValid()) {
-        paint.drawRect(selection);
-    }
-    setPixmap(pix);
+    img = new QImage(qimg);
+    repaint();
 }
 
 void CutVideoWidget::cut()
