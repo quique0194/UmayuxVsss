@@ -9,6 +9,7 @@
 #include <QMouseEvent>
 #include <QImage>
 #include <QPainter>
+#include <QTime>
 #include <opencv2/opencv.hpp>
 
 using namespace std;
@@ -22,7 +23,6 @@ public:
     SelectAreaVideoWidget(QWidget* parent=0);
     ~SelectAreaVideoWidget();
 
-    float factor;
     QRect selection;
     QRect roi; // Region of interest
 private:

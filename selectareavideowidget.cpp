@@ -152,16 +152,15 @@ void SelectAreaVideoWidget::setFrame(Mat *frame)
 {
     QPixmap pix;
     if (fix_image.isNull()) {
-        QImage qimg_from_frame((uchar*)frame->data, frame->cols, frame->rows, frame->step, QImage::Format_RGB888);
-        if (qimg_from_frame.isNull()) {
-            return;
-        }
-        factor = max((float)frame->cols/baseSize().width(), (float)frame->rows/baseSize().height());
-        QImage qimg = qimg_from_frame.copy();
-        qimg = qimg.scaled(baseSize(), Qt::KeepAspectRatio);
-        last_frame = qimg_from_frame.copy();
-        last_image = qimg;
-        pix = QPixmap::fromImage(qimg);
+        QImage qimg((uchar*)frame->data, frame->cols, frame->rows, frame->step, QImage::Format_RGB888);
+        qimg = qimg.copy();
+        last_frame = qimg;
+        QTime time;
+        time.start();
+        QImage qimg2 = qimg.scaled(baseSize(), Qt::KeepAspectRatio);
+        cout << "TIME " << time.elapsed() << endl;
+        last_image = qimg2;
+        pix = QPixmap::fromImage(qimg2);
     }
     else {
         pix = QPixmap::fromImage(fix_image);

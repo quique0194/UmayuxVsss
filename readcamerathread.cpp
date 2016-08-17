@@ -19,7 +19,7 @@ void ReadCameraThread::run() {
         Mat img;
         img.data = NULL;
         cap >> img;
-        if (img.data == NULL || img.cols == 0 || img.rows == 0) {
+        if (img.empty()) {
             cout << "Camera returned null data" << endl;
             continue;
         }
@@ -33,7 +33,7 @@ void ReadCameraThread::run() {
             Mat cropped = img(cv_roi);
             cropped.copyTo(img);
         }
-        if (frames.size() > 30) {
+        if (frames.size() > 40) {
             delete frames.front();
             frames.pop();
         }
