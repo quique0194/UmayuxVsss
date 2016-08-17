@@ -1,6 +1,6 @@
 #include "cutvideowidget.h"
 
-CutVideoWidget::CutVideoWidget(QFrame *frame): QLabel(frame), selecting(false)
+CutVideoWidget::CutVideoWidget(QWidget *frame): QLabel(frame), selecting(false)
 {
     img = 0;
 }

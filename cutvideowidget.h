@@ -10,6 +10,7 @@
 #include <QPaintEvent>
 #include <QTime>
 #include <QSize>
+#include <QWidget>
 #include <opencv2/opencv.hpp>
 
 using namespace std;
@@ -20,7 +21,7 @@ class CutVideoWidget : public QLabel
 {
     Q_OBJECT
 public:
-    CutVideoWidget(QFrame* frame=0);
+    CutVideoWidget(QWidget* frame=0);
     ~CutVideoWidget();
     QSize sizeHint() const;
 

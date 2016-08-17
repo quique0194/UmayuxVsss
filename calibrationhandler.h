@@ -15,12 +15,13 @@ using namespace std;
 class CalibrationHandler : public QObject
 {
     Q_OBJECT
+    friend class ShowImageWidget;
 public:
     explicit CalibrationHandler();
     ~CalibrationHandler();
     string toString();
     Calibration* currentCalib;
-private:
+
     Calibration blueCalib;
     Calibration yellowCalib;
     Calibration orangeCalib;
@@ -44,7 +45,8 @@ public slots:
     void resetX();
     void resetY();
     void resetZ();
-public slots:
+
+    void undo();
 };
 
 #endif // CALIBRATIONHANDLER_H

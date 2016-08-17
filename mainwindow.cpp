@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->selectArea, SLOT(setFrame(Mat*)));
     QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->showBinarized, SLOT(setFrame(Mat*)));
     QObject::connect(&rct, SIGNAL(newFPS(QString)), ui->statusBar, SLOT(showMessage(QString)));
+    QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->showVision, SLOT(setFrame(Mat*)));
 
     QObject::connect(ui->cutVideo, SIGNAL(newRoi(QRect*)), &rct, SLOT(setRoi(QRect*)));
     QObject::connect(ui->cutVideo, SIGNAL(resetRoi()), &rct, SLOT(resetRoi()));
@@ -26,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(&calibHandler, SIGNAL(newCalibration(Calibration*)), this, SLOT(setSliders(Calibration*)));
     QObject::connect(&calibHandler, SIGNAL(newCalibration(Calibration*)), ui->showBinarized, SLOT(newCalibration(Calibration*)));
+    QObject::connect(&calibHandler, SIGNAL(newCalibration(Calibration*)), ui->showVision, SLOT(newCalibration(Calibration*)));
 
     QObject::connect(ui->slider0, SIGNAL(sliderMoved(int)), &calibHandler, SLOT(setX0(int)));
     QObject::connect(ui->slider1, SIGNAL(sliderMoved(int)), &calibHandler, SLOT(setX1(int)));
@@ -42,7 +44,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(ui->saveCalibBtn, SIGNAL(clicked()), &calibHandler, SLOT(save()));
     QObject::connect(ui->resetAreaBtn, SIGNAL(clicked()), ui->selectArea, SLOT(reset()));
+    QObject::connect(ui->undoBtn, SIGNAL(clicked()), &calibHandler, SLOT(undo()));
 
+    ui->showVision->setCalibrationHandler(&calibHandler);
     emit calibHandler.newCalibration(calibHandler.currentCalib);
     rct.start();
 }
@@ -82,6 +86,5 @@ void MainWindow::setSliders(Calibration *calib)
 
 void MainWindow::exposureSliderChange(int val)
 {
-    cout << "EXPOSURE " << val << endl;
     rct.cap->set(CV_CAP_PROP_EXPOSURE, val);
 }

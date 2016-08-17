@@ -134,3 +134,8 @@ void CalibrationHandler::resetZ()
     currentCalib->setZ1(0);
 }
 
+void CalibrationHandler::undo()
+{
+    currentCalib->undo();
+}
+
