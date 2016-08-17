@@ -10,6 +10,15 @@ CutVideoWidget::~CutVideoWidget()
 
 }
 
+QSize CutVideoWidget::sizeHint() const
+{
+    if (img) {
+        return QSize(img->width(), img->height());
+    } else {
+        return QWidget::sizeHint();
+    }
+}
+
 void CutVideoWidget::mousePressEvent(QMouseEvent *ev)
 {
     if (roi.isNull() && ev->button() == Qt::LeftButton) {
@@ -38,7 +47,6 @@ void CutVideoWidget::paintEvent(QPaintEvent *ev)
 {
     if (img) {
         QPainter paint(this);
-        resize(img->width(), img->height());
         paint.drawImage(img->rect(), *img, img->rect());
         paint.setPen(Qt::red);
         if (selection.isValid()) {
@@ -56,6 +64,10 @@ void CutVideoWidget::setFrame(Mat *frame)
     }
     img = new QImage(qimg);
     repaint();
+    if (width() != img->width()) {
+        resize(img->width(), img->height());
+        updateGeometry();
+    }
 }
 
 void CutVideoWidget::cut()

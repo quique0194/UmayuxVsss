@@ -9,6 +9,7 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QTime>
+#include <QSize>
 #include <opencv2/opencv.hpp>
 
 using namespace std;
@@ -21,6 +22,7 @@ class CutVideoWidget : public QLabel
 public:
     CutVideoWidget(QFrame* frame=0);
     ~CutVideoWidget();
+    QSize sizeHint() const;
 
     QRect selection;
     QRect roi; // Region of interest

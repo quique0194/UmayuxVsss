@@ -40,6 +40,10 @@ public slots:
     void setY1(int);
     void setZ0(int);
     void setZ1(int);
+
+    void resetX();
+    void resetY();
+    void resetZ();
 public slots:
 };
 

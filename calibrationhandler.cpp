@@ -116,3 +116,21 @@ void CalibrationHandler::setZ1(int v)
     currentCalib->setZ1(v);
 }
 
+void CalibrationHandler::resetX()
+{
+    currentCalib->setX0(255);
+    currentCalib->setX1(0);
+}
+
+void CalibrationHandler::resetY()
+{
+    currentCalib->setY0(255);
+    currentCalib->setY1(0);
+}
+
+void CalibrationHandler::resetZ()
+{
+    currentCalib->setZ0(255);
+    currentCalib->setZ1(0);
+}
+

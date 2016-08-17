@@ -33,6 +33,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->slider4, SIGNAL(sliderMoved(int)), &calibHandler, SLOT(setZ0(int)));
     QObject::connect(ui->slider5, SIGNAL(sliderMoved(int)), &calibHandler, SLOT(setZ1(int)));
 
+    QObject::connect(ui->resetSliders01, SIGNAL(clicked()), &calibHandler, SLOT(resetX()));
+    QObject::connect(ui->resetSliders23, SIGNAL(clicked()), &calibHandler, SLOT(resetY()));
+    QObject::connect(ui->resetSliders45, SIGNAL(clicked()), &calibHandler, SLOT(resetZ()));
+
     QObject::connect(ui->saveCalibBtn, SIGNAL(clicked()), &calibHandler, SLOT(save()));
     QObject::connect(ui->resetAreaBtn, SIGNAL(clicked()), ui->selectArea, SLOT(reset()));
 
