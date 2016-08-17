@@ -31,6 +31,7 @@ private slots:
     void on_selectAreaBtn_clicked();
 
     void setSliders(Calibration* calib);
+    void exposureSliderChange(int val);
 
 private:
     Ui::MainWindow *ui;

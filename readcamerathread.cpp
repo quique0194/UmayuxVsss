@@ -3,10 +3,12 @@
 ReadCameraThread::ReadCameraThread(): keep_reading(true), roi_exists(false)
 {
     fps = 0;
+    cap = 0;
 }
 
 ReadCameraThread::~ReadCameraThread()
 {
+    delete cap;
     while (!frames.empty()) {
         delete frames.front();
         frames.pop();
@@ -14,13 +16,13 @@ ReadCameraThread::~ReadCameraThread()
 }
 
 void ReadCameraThread::run() {
-    VideoCapture cap(0);
+    cap = new VideoCapture(0);
     QTime time;
     time.start();
     while (keep_reading) {
         Mat img;
         img.data = NULL;
-        cap >> img;
+        *cap >> img;
         if (img.empty()) {
             cout << "Camera returned null data" << endl;
             continue;

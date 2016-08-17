@@ -34,6 +34,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->slider4, SIGNAL(sliderMoved(int)), &calibHandler, SLOT(setZ0(int)));
     QObject::connect(ui->slider5, SIGNAL(sliderMoved(int)), &calibHandler, SLOT(setZ1(int)));
 
+    QObject::connect(ui->exposureSlider, SIGNAL(sliderMoved(int)), this, SLOT(exposureSliderChange(int)));
+
     QObject::connect(ui->resetSliders01, SIGNAL(clicked()), &calibHandler, SLOT(resetX()));
     QObject::connect(ui->resetSliders23, SIGNAL(clicked()), &calibHandler, SLOT(resetY()));
     QObject::connect(ui->resetSliders45, SIGNAL(clicked()), &calibHandler, SLOT(resetZ()));
@@ -76,4 +78,10 @@ void MainWindow::setSliders(Calibration *calib)
     ui->slider3->setSliderPosition(calib->data[4]);
     ui->slider4->setSliderPosition(calib->data[2]);
     ui->slider5->setSliderPosition(calib->data[5]);
+}
+
+void MainWindow::exposureSliderChange(int val)
+{
+    cout << "EXPOSURE " << val << endl;
+    rct.cap->set(CV_CAP_PROP_EXPOSURE, val);
 }

@@ -155,10 +155,10 @@ void SelectAreaVideoWidget::setFrame(Mat *frame)
         QImage qimg((uchar*)frame->data, frame->cols, frame->rows, frame->step, QImage::Format_RGB888);
         qimg = qimg.copy();
         last_frame = qimg;
-        QTime time;
-        time.start();
+//        QTime time;
+//        time.start();
         QImage qimg2 = qimg.scaled(baseSize(), Qt::KeepAspectRatio);
-        cout << "TIME " << time.elapsed() << endl;
+        //cout << "TIME " << time.elapsed() << endl;
         last_image = qimg2;
         pix = QPixmap::fromImage(qimg2);
     }

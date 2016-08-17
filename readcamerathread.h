@@ -22,6 +22,7 @@ public:
     void customStop();
 
     queue<Mat*> frames;
+    VideoCapture* cap;
 private:
     void run();
 
