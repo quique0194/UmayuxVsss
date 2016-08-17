@@ -5,6 +5,7 @@
 #include <queue>
 #include <QtCore>
 #include <QRect>
+#include <QString>
 #include <QTime>
 #include <opencv2/opencv.hpp>
 
@@ -27,8 +28,11 @@ private:
     bool keep_reading;
     bool roi_exists;
     QRect roi;
+    int fps;
 signals:
     void newFrame(Mat* frame);
+    void newFPS(int fps);
+    void newFPS(QString fps);
 public slots:
     void setRoi(QRect* new_roi);
     void resetRoi();

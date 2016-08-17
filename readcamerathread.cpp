@@ -2,7 +2,7 @@
 
 ReadCameraThread::ReadCameraThread(): keep_reading(true), roi_exists(false)
 {
-
+    fps = 0;
 }
 
 ReadCameraThread::~ReadCameraThread()
@@ -15,6 +15,8 @@ ReadCameraThread::~ReadCameraThread()
 
 void ReadCameraThread::run() {
     VideoCapture cap(0);
+    QTime time;
+    time.start();
     while (keep_reading) {
         Mat img;
         img.data = NULL;
@@ -40,6 +42,15 @@ void ReadCameraThread::run() {
         Mat* ptr = new Mat(img);
         frames.push(ptr);
         emit newFrame(ptr);
+        // FPS
+        if (time.elapsed() >= 1000) {
+            emit newFPS(fps);
+            emit newFPS("FPS: " + QString::number(fps));
+            fps = 0;
+            time.restart();
+        } else {
+            fps++;
+        }
     }
     cout << "End of read camera thread" << endl;
 }
