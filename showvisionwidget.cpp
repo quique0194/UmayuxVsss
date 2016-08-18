@@ -140,6 +140,9 @@ vector<Point> punto_central(vector<Point> color_equipo, vector<Point> color_juga
 }
 
 void ShowVisionWidget::proc(Mat* frame) {
+    if (!isVisible()) {
+        return;
+    }
     QTime time;
     time.start();
     Mat imgThresholded;
