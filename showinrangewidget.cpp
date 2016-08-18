@@ -17,7 +17,7 @@ void ShowInRangeWidget::newCalibration(Calibration *c)
 
 void ShowInRangeWidget::setFrame(Mat *frame)
 {
-    if (calib == NULL) {
+    if (!isVisible() || calib == NULL) {
         return;
     }
     Mat binarized;

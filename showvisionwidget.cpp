@@ -2,7 +2,11 @@
 
 ShowVisionWidget::ShowVisionWidget(QWidget* parent): QLabel(parent)
 {
-
+    img = 0;
+    my_team.assign(3,Point(-1, -1));
+    my_team_ori.assign(3,Point(-1, -1));
+    op_team.assign(3,Point(-1, -1));
+    ball = Point(-1, -1);
 }
 
 ShowVisionWidget::~ShowVisionWidget()
@@ -24,12 +28,47 @@ void ShowVisionWidget::setCalibrationHandler(CalibrationHandler* _ch)
     ch = _ch;
 }
 
+QPoint Point2QPoint(const Point& p) {
+    return QPoint(p.x, p.y);
+}
+
+bool ShowVisionWidget::validPoint(const Point& p) {
+    if (!img) {
+        return false;
+    }
+    return p.x >= 0 && p.x < img->width() && p.y >= 0 && p.y < img->height();
+}
+
 void ShowVisionWidget::paintEvent(QPaintEvent*)
 {
+    QTime time;
+    time.start();
     if (img) {
         QPainter paint(this);
         paint.drawImage(img->rect(), *img, img->rect());
+        QPoint p, q;
+        int r = 20;
+        for (int i = 0; i < 3; ++i) {
+            if (validPoint(my_team[i])) {
+                paint.setPen(Qt::green);
+                p = Point2QPoint(my_team[i]);
+                paint.drawEllipse(p, r, r);
+                q = Point2QPoint(my_team_ori[i]);
+                paint.drawLine(p, q);
+            }
+            if (validPoint(op_team[i])) {
+                p = Point2QPoint(op_team[i]);
+                paint.setPen(Qt::red);
+                paint.drawEllipse(p, r, r);
+            }
+        }
+        if (validPoint(ball)){
+            p = Point2QPoint(ball);
+            paint.setPen(Qt::blue);
+            paint.drawEllipse(p, 2, 2);
+        }
     }
+    cout << "TIME REPAINT " << time.elapsed() << endl;
 }
 
 vector<Point> punto_central_color(Mat imgThresholded){
@@ -100,7 +139,9 @@ vector<Point> punto_central(vector<Point> color_equipo, vector<Point> color_juga
     return puntos_cercanos;
 }
 
-vector<Point> ShowVisionWidget::proc(Mat* frame) {
+void ShowVisionWidget::proc(Mat* frame) {
+    QTime time;
+    time.start();
     Mat imgThresholded;
     /////////////////////////////////////////////////// AMARILLO
     Scalar lower_bound(ch->yellowCalib.data[0], ch->yellowCalib.data[1], ch->yellowCalib.data[2]);
@@ -180,41 +221,50 @@ vector<Point> ShowVisionWidget::proc(Mat* frame) {
     vector<Point> jugador_Am_Ro = punto_central(ptos_amarillo,ptos_rojo);
     //line(drawing, jugador_Am_Ro.at(0), jugador_Am_Ro.at(1),Scalar( 110, 220, 0 ),  2, 8);
 //    circle(drawing, jugador_Am_Ro.at(2),3,Scalar( 110, 220, 0 ),  2, 8);
-    cout<<"P1_AM_RO: "<<jugador_Am_Ro.at(2).x<<" ; "<<jugador_Am_Ro.at(2).y<<endl;
+    //cout<<"P1_AM_RO: "<<jugador_Am_Ro.at(2).x<<" ; "<<jugador_Am_Ro.at(2).y<<endl;
+    my_team[0] = jugador_Am_Ro.at(2);
+    my_team_ori[0] = jugador_Am_Ro.at(0);
 
     //// JUGADOR_AMARILLO_VERDE
     vector<Point> jugador_Am_Ve = punto_central(ptos_amarillo,ptos_verde);
     //line(drawing, jugador_Am_Ve.at(0), jugador_Am_Ve.at(1),Scalar( 110, 220, 0 ),  2, 8);
 //    circle(drawing, jugador_Am_Ve.at(2),3,Scalar( 110, 220, 0 ),  2, 8);
-    cout<<"P2_AM_VE: "<<jugador_Am_Ve.at(2).x<<" ; "<<jugador_Am_Ve.at(2).y<<endl;
+    //cout<<"P2_AM_VE: "<<jugador_Am_Ve.at(2).x<<" ; "<<jugador_Am_Ve.at(2).y<<endl;
+    my_team[1] = jugador_Am_Ve.at(2);
+    my_team_ori[1] = jugador_Am_Ve.at(0);
 
     //// JUGADOR_AMARILLO_CYAN
     vector<Point> jugador_Am_Cy = punto_central(ptos_amarillo,ptos_cyan);
     //line(drawing, jugador_Am_Cy.at(0), jugador_Am_Cy.at(1),Scalar( 110, 220, 0 ),  2, 8);
 //    circle(drawing, jugador_Am_Cy.at(2),3,Scalar( 110, 220, 0 ),  2, 8);
-    cout<<"P3_AM_CY: "<<jugador_Am_Cy.at(2).x<<" ; "<<jugador_Am_Cy.at(2).y<<endl;
+   // cout<<"P3_AM_CY: "<<jugador_Am_Cy.at(2).x<<" ; "<<jugador_Am_Cy.at(2).y<<endl;
+    my_team[2] = jugador_Am_Cy.at(2);
+    my_team_ori[2] = jugador_Am_Cy.at(0);
 
     //// JUGADOR_AZUL_ROJO
     vector<Point> jugador_Az_Ro = punto_central(ptos_azul,ptos_rojo);
     //line(drawing, jugador_Am_Ro.at(0), jugador_Am_Ro.at(1),Scalar( 110, 220, 0 ),  2, 8);
 //    circle(drawing, jugador_Az_Ro.at(2),3,Scalar( 110, 220, 0 ),  2, 8);
-    cout<<"P1_AZ_RO: "<<jugador_Az_Ro.at(2).x<<" ; "<<jugador_Az_Ro.at(2).y<<endl;
+    //cout<<"P1_AZ_RO: "<<jugador_Az_Ro.at(2).x<<" ; "<<jugador_Az_Ro.at(2).y<<endl;
+    op_team[0] = jugador_Az_Ro.at(2);
 
     //// JUGADOR_AZUL_VERDE
     vector<Point> jugador_Az_Ve = punto_central(ptos_azul,ptos_verde);
     //line(drawing, jugador_Am_Ve.at(0), jugador_Am_Ve.at(1),Scalar( 110, 220, 0 ),  2, 8);
 //    circle(drawing, jugador_Az_Ve.at(2),3,Scalar( 110, 220, 0 ),  2, 8);
-    cout<<"P2_AZ_VE: "<<jugador_Az_Ve.at(2).x<<" ; "<<jugador_Az_Ve.at(2).y<<endl;
+   // cout<<"P2_AZ_VE: "<<jugador_Az_Ve.at(2).x<<" ; "<<jugador_Az_Ve.at(2).y<<endl;
+    op_team[1] = jugador_Az_Ve.at(2);
 
     //// JUGADOR_AZUL_CYAN
     vector<Point> jugador_Az_Cy = punto_central(ptos_azul,ptos_cyan);
     //line(drawing, jugador_Am_Cy.at(0), jugador_Am_Cy.at(1),Scalar( 110, 220, 0 ),  2, 8);
 //    circle(drawing, jugador_Az_Cy.at(2),3,Scalar( 110, 220, 0 ),  2, 8);
-    cout<<"P3_AZ_CY: "<<jugador_Az_Cy.at(2).x<<" ; "<<jugador_Az_Cy.at(2).y<<endl;
+   // cout<<"P3_AZ_CY: "<<jugador_Az_Cy.at(2).x<<" ; "<<jugador_Az_Cy.at(2).y<<endl;
+    op_team[2] = jugador_Az_Cy.at(2);
 
 //    imgOriginal = imgOriginal + drawing;
 //    imshow("Original", imgOriginal); //show the original image
-    return vector<Point>();
+    cout << "TIME PROC " << time.elapsed() << endl;
 }
 
 

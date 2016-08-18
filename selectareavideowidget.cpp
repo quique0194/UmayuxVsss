@@ -150,6 +150,9 @@ void SelectAreaVideoWidget::reset()
 
 void SelectAreaVideoWidget::setFrame(Mat *frame)
 {
+    if (!isVisible()) {
+        return;
+    }
     QPixmap pix;
     if (fix_image.isNull()) {
         QImage qimg((uchar*)frame->data, frame->cols, frame->rows, frame->step, QImage::Format_RGB888);

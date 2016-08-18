@@ -37,7 +37,7 @@ void ReadCameraThread::run() {
             Mat cropped = img(cv_roi);
             cropped.copyTo(img);
         }
-        if (frames.size() > 40) {
+        if (frames.size() > 1000) {
             delete frames.front();
             frames.pop();
         }

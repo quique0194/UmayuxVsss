@@ -57,6 +57,9 @@ void CutVideoWidget::paintEvent(QPaintEvent *ev)
 
 void CutVideoWidget::setFrame(Mat *frame)
 {
+    if (!isVisible()) {
+        return;
+    }
     QImage qimg((uchar*)frame->data, frame->cols, frame->rows, frame->step, QImage::Format_RGB888);
     qimg = qimg.copy();
     if (img) {
