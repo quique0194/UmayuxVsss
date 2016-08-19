@@ -75,7 +75,7 @@ void ShowVisionWidget::paintEvent(QPaintEvent*)
 
 vector<Point> punto_central_color(Mat imgThresholded, const string& color="") {
     erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
-    dilate(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
+//    dilate(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
 
     Mat cc, ret;
     int blobs = connectedComponents(imgThresholded, cc, 4);
@@ -85,12 +85,10 @@ vector<Point> punto_central_color(Mat imgThresholded, const string& color="") {
 
     for (int i = 1; i < blobs; ++i) {
         inRange(cc, i, i, ret);
-        int j = i-1;
-        mu[j] = moments(ret, false);
-        mc[j] = Point2f( mu[j].m10/mu[j].m00 , mu[j].m01/mu[j].m00 );
+        Rect br = boundingRect(ret);
         Point p;
-        p.x = (int)mc[i-1].x;
-        p.y = (int)mc[i-1].y;
+        p.x = br.x + br.width/2;
+        p.y = br.y + br.height/2;
         puntos_color.push_back(p);
     }
 
