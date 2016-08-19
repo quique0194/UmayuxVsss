@@ -66,9 +66,10 @@ void ShowVisionWidget::paintEvent(QPaintEvent*)
             }
         }
         if (validPoint(ball)){
+            int r = 7;
             p = Point2QPoint(ball);
             paint.setPen(Qt::blue);
-            paint.drawEllipse(p, 2, 2);
+            paint.drawEllipse(p, r, r);
         }
     }
 }
@@ -124,6 +125,46 @@ vector<Point> punto_central(const vector<Point>& color_equipo, const vector<Poin
     puntos_cercanos.push_back(p_med);
 
     return puntos_cercanos;
+}
+
+Point closest_candidate(const vector<Point>& candidates, const Point& last_position) {
+    int min_dist_cuad = 10000000;
+    Point closest(-1, -1);
+    for (int i = 0; i < candidates.size(); ++i) {
+        int a = last_position.x-candidates[i].x;
+        int b = last_position.y-candidates[i].y;
+        int dist_cuad = a*a + b*b;
+        if (dist_cuad < min_dist_cuad) {
+            closest = candidates[i];
+            min_dist_cuad = dist_cuad;
+        }
+    }
+    return closest;
+}
+
+Point ShowVisionWidget::find_ball(Mat imgThresholded) {
+    erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
+    dilate(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
+
+    Mat cc, ret;
+    int blobs = connectedComponents(imgThresholded, cc, 4);
+
+    vector<int> areas;
+    vector<Point> candidates;
+    for (int i = 1; i < blobs; ++i) {
+        inRange(cc, i, i, ret);
+        int area = countNonZero(ret);
+        areas.push_back(area);
+        Rect br = boundingRect(ret);
+        if (area > 60 && area < 120 && abs(br.width-br.height) < 2) {
+            Point p;
+            p.x = br.x + br.width/2;
+            p.y = br.y + br.height/2;
+            candidates.push_back(p);
+        }
+    }
+
+    return closest_candidate(candidates, ball);
 }
 
 void ShowVisionWidget::proc(Mat* frame) {
@@ -193,6 +234,12 @@ void ShowVisionWidget::proc(Mat* frame) {
     //// JUGADOR_AZUL_CYAN
     vector<Point> jugador_Az_Cy = punto_central(ptos_azul,ptos_cyan);
     op_team[2] = jugador_Az_Cy.at(2);
+
+    //// BALL
+    lower_bound = Scalar(ch->orangeCalib.data[0], ch->orangeCalib.data[1], ch->orangeCalib.data[2]);
+    upper_bound = Scalar(ch->orangeCalib.data[3], ch->orangeCalib.data[4], ch->orangeCalib.data[5]);
+    inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
+    ball = find_ball(imgThresholded);
 
     cout << "TIME PROC " << time.elapsed() << endl;
 }

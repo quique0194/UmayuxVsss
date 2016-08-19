@@ -28,6 +28,7 @@ protected:
     void paintEvent(QPaintEvent*);
 private:
     bool validPoint(const Point& p);
+    Point find_ball(Mat);
     QImage* img;
     CalibrationHandler* ch;
     vector<Point> my_team;
