@@ -73,36 +73,25 @@ void ShowVisionWidget::paintEvent(QPaintEvent*)
     }
 }
 
-vector<Point> punto_central_color(Mat imgThresholded, const string& color=""){
-    int thresh = 100;
-    Mat canny_output;
-    vector<vector<Point> > contours;
-    vector<Vec4i> hierarchy;
+vector<Point> punto_central_color(Mat imgThresholded, const string& color="") {
+    erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
+    dilate(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
+
+    Mat cc, ret;
+    int blobs = connectedComponents(imgThresholded, cc, 4);
+    vector<Moments> mu(blobs-1);
+    vector<Point2f> mc(blobs-1);
     vector<Point> puntos_color;
 
-    erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)) );
-    dilate( imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)) );
-
-    Canny( imgThresholded, canny_output, thresh, thresh*2, 3 );
-    findContours( canny_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-
-    vector<Moments> mu(contours.size() );
-    for( size_t i = 0; i < contours.size(); i++ ){
-        mu[i] = moments( contours[i], false );
-    }
-
-    vector<Point2f> mc( contours.size() );
-    for( size_t i = 0; i < contours.size(); i++ ){
-        mc[i] = Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
-    }
-
-    for( size_t i = 0; i< contours.size(); i++ ){
-        if (i%2!=0){
-            Point p;
-            p.x = (int)mc[i].x;
-            p.y = (int)mc[i].y;
-            puntos_color.push_back(p);
-        }
+    for (int i = 1; i < blobs; ++i) {
+        inRange(cc, i, i, ret);
+        int j = i-1;
+        mu[j] = moments(ret, false);
+        mc[j] = Point2f( mu[j].m10/mu[j].m00 , mu[j].m01/mu[j].m00 );
+        Point p;
+        p.x = (int)mc[i-1].x;
+        p.y = (int)mc[i-1].y;
+        puntos_color.push_back(p);
     }
 
     return puntos_color;
