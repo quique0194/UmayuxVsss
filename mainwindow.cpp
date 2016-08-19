@@ -8,12 +8,12 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowState(Qt::WindowMaximized);
     ui->setupUi(this);
 
+    QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->showVision, SLOT(proc(Mat*)));
+    QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->showVision, SLOT(setFrame(Mat*)));
     QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->cutVideo, SLOT(setFrame(Mat*)));
     QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->selectArea, SLOT(setFrame(Mat*)));
     QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->showBinarized, SLOT(setFrame(Mat*)));
     QObject::connect(&rct, SIGNAL(newFPS(QString)), ui->statusBar, SLOT(showMessage(QString)));
-    QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->showVision, SLOT(setFrame(Mat*)));
-    QObject::connect(&rct, SIGNAL(newFrame(Mat*)), ui->showVision, SLOT(proc(Mat*)));
 
     QObject::connect(ui->cutVideo, SIGNAL(newRoi(QRect*)), &rct, SLOT(setRoi(QRect*)));
     QObject::connect(ui->cutVideo, SIGNAL(resetRoi()), &rct, SLOT(resetRoi()));
