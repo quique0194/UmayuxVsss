@@ -1,6 +1,8 @@
 #ifndef SHOWVISIONWIDGET_H
 #define SHOWVISIONWIDGET_H
 
+#include <iostream>
+#include <string>
 #include <QWidget>
 #include <QLabel>
 #include <QImage>
@@ -11,6 +13,7 @@
 #include <opencv2/opencv.hpp>
 #include "calibrationhandler.h"
 
+using namespace std;
 using namespace cv;
 
 
@@ -32,6 +35,7 @@ private:
     vector<Point> op_team;
     Point ball;
 public slots:
+    void reset();
     void proc(Mat* frame);
     void setFrame(Mat* frame);
     void setCalibrationHandler(CalibrationHandler* ch);
