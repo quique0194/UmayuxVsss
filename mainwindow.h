@@ -4,10 +4,14 @@
 #include <iostream>
 #include <QMainWindow>
 #include <QString>
+#include <QStringList>
+#include <QProcess>
+#include <QtConcurrent/QtConcurrent>
 #include "readcamerathread.h"
 #include "calibrationhandler.h"
 
 using namespace std;
+using namespace QtConcurrent;
 
 
 namespace Ui {
@@ -25,13 +29,12 @@ public:
 
 private slots:
     void on_cutBtn_clicked();
-
     void on_resetBtn_clicked();
-
     void on_selectAreaBtn_clicked();
-
     void setSliders(Calibration* calib);
     void exposureSliderChange(int val);
+
+    void on_startStrategy_clicked();
 
 private:
     Ui::MainWindow *ui;

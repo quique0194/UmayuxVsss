@@ -240,8 +240,6 @@ void ShowVisionWidget::proc(Mat* frame) {
     upper_bound = Scalar(ch->orangeCalib.data[3], ch->orangeCalib.data[4], ch->orangeCalib.data[5]);
     inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ball = find_ball(imgThresholded);
-
-    cout << "TIME PROC " << time.elapsed() << endl;
 }
 
 
