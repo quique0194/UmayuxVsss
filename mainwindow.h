@@ -36,6 +36,8 @@ private slots:
 
     void on_startStrategy_clicked();
 
+    void on_startControl_clicked();
+
 private:
     Ui::MainWindow *ui;
     CalibrationHandler calibHandler;

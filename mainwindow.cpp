@@ -89,6 +89,12 @@ void MainWindow::exposureSliderChange(int val)
     rct.cap->set(CV_CAP_PROP_EXPOSURE, val);
 }
 
+/*
+    ===========================================================
+    RUN COMMANDS
+    ===========================================================
+*/
+
 void runCommandAsync(QString cmd, QStringList args, QLabel* outputLbl) {
     QProcess p;
     p.start(cmd, args);
@@ -115,3 +121,20 @@ void MainWindow::on_startStrategy_clicked()
     QtConcurrent::run(runCommandAsync, QString("python"),
                       params, ui->strategyOutput);
 }
+
+
+void MainWindow::on_startControl_clicked()
+{
+    QStringList params;
+    params << "-u";     // -u makes writes to stdout unbuffered
+    params << "E:\\codigos\\borrame\\print_time.py";
+    ui->startControl->setEnabled(false);
+    QtConcurrent::run(runCommandAsync, QString("python"),
+                      params, ui->controlOutput);
+}
+
+/*
+    ===========================================================
+    END RUN COMMANDS
+    ===========================================================
+*/
