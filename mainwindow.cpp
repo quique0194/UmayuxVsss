@@ -102,7 +102,9 @@ void runCommandAsync(QString cmd, QStringList args, QLabel* outputLbl) {
     bool finished = false;
     while (!finished) {
         finished = p.waitForFinished(100);
-        QString output = p.read(1000);
+        QString output = p.readAllStandardOutput();
+        QString output_error = p.readAllStandardError();
+        output.append(output_error);
         QString text = outputLbl->text();
         text.append(output);
         outputLbl->setText(text);
@@ -116,8 +118,8 @@ void MainWindow::on_startStrategy_clicked()
 {
     QStringList params;
     params << "-u";     // -u makes writes to stdout unbuffered
-    params << "E:\\codigos\\borrame\\print_time.py";
-    ui->startStrategy->setEnabled(false);
+    params << "E:\\codigos\\borrame\\strategy.py";
+//    ui->startStrategy->setEnabled(false);
     QtConcurrent::run(runCommandAsync, QString("python"),
                       params, ui->strategyOutput);
 }
@@ -128,7 +130,7 @@ void MainWindow::on_startControl_clicked()
     QStringList params;
     params << "-u";     // -u makes writes to stdout unbuffered
     params << "E:\\codigos\\borrame\\print_time.py";
-    ui->startControl->setEnabled(false);
+//    ui->startControl->setEnabled(false);
     QtConcurrent::run(runCommandAsync, QString("python"),
                       params, ui->controlOutput);
 }

@@ -1,7 +1,8 @@
 #include "showvisionwidget.h"
 
-ShowVisionWidget::ShowVisionWidget(QWidget* parent): QLabel(parent)
+ShowVisionWidget::ShowVisionWidget(QWidget* parent): QLabel(parent), socket(this)
 {
+    socket.bind(QHostAddress("0.0.0.0"), 0);
     img = 0;
     reset();
 }
@@ -175,7 +176,7 @@ void ShowVisionWidget::proc(Mat* frame) {
     time.start();
     Mat imgThresholded;
     Scalar lower_bound, upper_bound;
-
+/*
     /////////////////////////////////////////////////// AMARILLO
     lower_bound = Scalar(ch->yellowCalib.data[0], ch->yellowCalib.data[1], ch->yellowCalib.data[2]);
     upper_bound = Scalar(ch->yellowCalib.data[3], ch->yellowCalib.data[4], ch->yellowCalib.data[5]);
@@ -240,6 +241,12 @@ void ShowVisionWidget::proc(Mat* frame) {
     upper_bound = Scalar(ch->orangeCalib.data[3], ch->orangeCalib.data[4], ch->orangeCalib.data[5]);
     inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ball = find_ball(imgThresholded);
+    // cout << "TIME PROC " << time.elapsed() << endl;
+*/
+    //// SEND INFO
+    if (socket.isWritable()) {
+        socket.writeDatagram(QByteArray("pene"), QHostAddress("0.0.0.0"), 9001);
+    }
 }
 
 

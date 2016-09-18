@@ -703,7 +703,7 @@
               <item>
                <widget class="QTabWidget" name="tabWidget">
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tab_4">
                  <attribute name="title">
@@ -729,6 +729,12 @@
                        <widget class="QLabel" name="strategyOutput">
                         <property name="text">
                          <string>Strategy output</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                        </property>
+                        <property name="textInteractionFlags">
+                         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                         </property>
                        </widget>
                       </item>
@@ -774,6 +780,12 @@
                           <widget class="QLabel" name="controlOutput">
                            <property name="text">
                             <string>Control output</string>
+                           </property>
+                           <property name="alignment">
+                            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                           </property>
+                           <property name="textInteractionFlags">
+                            <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
                            </property>
                           </widget>
                          </item>

@@ -10,6 +10,7 @@
 #include <QSize>
 #include <QPoint>
 #include <QTime>
+#include <QtNetwork/QtNetwork>
 #include <opencv2/opencv.hpp>
 #include "calibrationhandler.h"
 
@@ -35,6 +36,7 @@ private:
     vector<Point> my_team_ori;
     vector<Point> op_team;
     Point ball;
+    QUdpSocket socket;
 public slots:
     void reset();
     void proc(Mat* frame);
