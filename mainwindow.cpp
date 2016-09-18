@@ -49,12 +49,43 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->showVision->setCalibrationHandler(&calibHandler);
     emit calibHandler.newCalibration(calibHandler.currentCalib);
     rct.start();
+
+    //// EXTERNAL COMMANDS
+    QStringList params;
+    params << "-u";     // -u makes writes to stdout unbuffered
+    params << "E:\\codigos\\borrame\\strategy.py";
+    strategyCmd = new AsyncCmd(QString("python"), params);
+    strategyCmd->start();
+
+    QStringList paramsControl;
+    paramsControl << "-u";     // -u makes writes to stdout unbuffered
+    paramsControl << "E:\\codigos\\borrame\\print_time.py";
+    controlCmd = new AsyncCmd(QString("python"), paramsControl);
+    controlCmd->start();
+
+    connect(strategyCmd, SIGNAL(newText(QString)), ui->strategyOutput, SLOT(appendText(QString)));
+    connect(strategyCmd, SIGNAL(cmd_started()), ui->strategyOutput, SLOT(clear()));
+    connect(strategyCmd, SIGNAL(cmd_finished()), ui->strategyOutput, SLOT(printFinished()));
+    connect(strategyCmd, SIGNAL(cmd_started()), ui->startStrategy, SLOT(disable()));
+    connect(strategyCmd, SIGNAL(cmd_finished()), ui->startStrategy, SLOT(enable()));
+
+    connect(controlCmd, SIGNAL(newText(QString)), ui->controlOutput, SLOT(appendText(QString)));
+    connect(controlCmd, SIGNAL(cmd_started()), ui->controlOutput, SLOT(clear()));
+    connect(controlCmd, SIGNAL(cmd_finished()), ui->controlOutput, SLOT(printFinished()));
+    connect(controlCmd, SIGNAL(cmd_started()), ui->startControl, SLOT(disable()));
+    connect(controlCmd, SIGNAL(cmd_finished()), ui->startControl, SLOT(enable()));
 }
 
 MainWindow::~MainWindow()
 {
     rct.customStop();
+    strategyCmd->terminate_thread();
+    controlCmd->terminate_thread();
     rct.wait();
+    strategyCmd->wait();
+    controlCmd->wait();
+    delete strategyCmd;
+    delete controlCmd;
     delete ui;
 }
 
@@ -95,44 +126,15 @@ void MainWindow::exposureSliderChange(int val)
     ===========================================================
 */
 
-void runCommandAsync(QString cmd, QStringList args, QLabel* outputLbl) {
-    QProcess p;
-    p.start(cmd, args);
-    outputLbl->setText("");
-    bool finished = false;
-    while (!finished) {
-        finished = p.waitForFinished(100);
-        QString output = p.readAllStandardOutput();
-        QString output_error = p.readAllStandardError();
-        output.append(output_error);
-        QString text = outputLbl->text();
-        text.append(output);
-        outputLbl->setText(text);
-    }
-    QString text = outputLbl->text();
-    text.append("\nFinished\n");
-    outputLbl->setText(text);
-}
-
 void MainWindow::on_startStrategy_clicked()
 {
-    QStringList params;
-    params << "-u";     // -u makes writes to stdout unbuffered
-    params << "E:\\codigos\\borrame\\strategy.py";
-//    ui->startStrategy->setEnabled(false);
-    QtConcurrent::run(runCommandAsync, QString("python"),
-                      params, ui->strategyOutput);
+    strategyCmd->run_cmd();
 }
 
 
 void MainWindow::on_startControl_clicked()
 {
-    QStringList params;
-    params << "-u";     // -u makes writes to stdout unbuffered
-    params << "E:\\codigos\\borrame\\print_time.py";
-//    ui->startControl->setEnabled(false);
-    QtConcurrent::run(runCommandAsync, QString("python"),
-                      params, ui->controlOutput);
+    controlCmd->run_cmd();
 }
 
 /*

@@ -678,7 +678,7 @@
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_7">
                  <item>
-                  <widget class="QPushButton" name="startStrategy">
+                  <widget class="EasyDisableBtn" name="startStrategy">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -691,7 +691,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="startControl">
+                  <widget class="EasyDisableBtn" name="startControl">
                    <property name="text">
                     <string>Start control server</string>
                    </property>
@@ -703,7 +703,7 @@
               <item>
                <widget class="QTabWidget" name="tabWidget">
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>1</number>
                 </property>
                 <widget class="QWidget" name="tab_4">
                  <attribute name="title">
@@ -726,7 +726,12 @@
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_15">
                       <item>
-                       <widget class="QLabel" name="strategyOutput">
+                       <widget class="CmdOutput" name="strategyOutput">
+                        <property name="font">
+                         <font>
+                          <family>Verdana</family>
+                         </font>
+                        </property>
                         <property name="text">
                          <string>Strategy output</string>
                         </property>
@@ -777,7 +782,12 @@
                         </property>
                         <layout class="QVBoxLayout" name="verticalLayout_16">
                          <item>
-                          <widget class="QLabel" name="controlOutput">
+                          <widget class="CmdOutput" name="controlOutput">
+                           <property name="font">
+                            <font>
+                             <family>Verdana</family>
+                            </font>
+                           </property>
                            <property name="text">
                             <string>Control output</string>
                            </property>
@@ -876,6 +886,11 @@
    <class>ShowVisionWidget</class>
    <extends>QLabel</extends>
    <header>showvisionwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CmdOutput</class>
+   <extends>QLabel</extends>
+   <header>cmdoutput.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

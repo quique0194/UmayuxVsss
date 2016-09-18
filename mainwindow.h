@@ -8,6 +8,7 @@
 #include <QProcess>
 #include <QtConcurrent/QtConcurrent>
 #include "readcamerathread.h"
+#include "asynccmd.h"
 #include "calibrationhandler.h"
 
 using namespace std;
@@ -26,6 +27,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     ReadCameraThread rct;
+    AsyncCmd* strategyCmd;
+    AsyncCmd* controlCmd;
 
 private slots:
     void on_cutBtn_clicked();

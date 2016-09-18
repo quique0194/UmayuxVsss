@@ -244,9 +244,12 @@ void ShowVisionWidget::proc(Mat* frame) {
     // cout << "TIME PROC " << time.elapsed() << endl;
 */
     //// SEND INFO
-    if (socket.isWritable()) {
-        socket.writeDatagram(QByteArray("pene"), QHostAddress("0.0.0.0"), 9001);
-    }
+    cout << "pene" << endl;
+    /*[x,y,theta] de red, [x,y,theta] de red, [x,y] pelota*/
+    float data[] = {
+        1.0, 2.0,3.0
+    };
+    socket.writeDatagram((char*)data, sizeof(data), QHostAddress("127.0.0.1"), 9002);
 }
 
 
