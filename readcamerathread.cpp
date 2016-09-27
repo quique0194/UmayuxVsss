@@ -17,6 +17,12 @@ ReadCameraThread::~ReadCameraThread()
 
 void ReadCameraThread::run() {
     cap = new VideoCapture(0);
+//    cap->set(CV_CAP_PROP_FRAME_WIDTH,352);
+//    cap->set(CV_CAP_PROP_FRAME_HEIGHT,288);
+    cap->set(CV_CAP_PROP_FRAME_WIDTH,640);
+    cap->set(CV_CAP_PROP_FRAME_HEIGHT,480);
+    cout << "WIDTH " << cap->get(CV_CAP_PROP_FRAME_WIDTH) << endl;
+    cout << "HEIGHT " << cap->get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
     QTime time;
     time.start();
     while (keep_reading) {
@@ -26,6 +32,9 @@ void ReadCameraThread::run() {
         if (img.empty()) {
             cout << "Camera returned null data" << endl;
             continue;
+        }
+        else {
+            resize(img, img, Size(480, 360));
         }
         cvtColor(img, img, CV_BGR2RGB);
         if (roi_exists) {
