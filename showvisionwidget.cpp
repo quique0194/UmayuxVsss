@@ -76,16 +76,61 @@ void ShowVisionWidget::paintEvent(QPaintEvent*)
         }
     }
 }
+/*
+int myFloodFill(const Mat& I, Mat& output, int label, int i, int j) {
+    // Return how many pixels it filled """
+    if (i < 0 || j < 0 || i >= output.rows || j >= output.cols)
+        return 0;
+    if (output.at<uchar>(i, j) != 0)
+        return 0;
+    if (I.at<uchar>(i, j) == 0)
+        return 0;
+    output.at<uchar>(i, j) = label;
+    int ret = 1;
+    ret += myFloodFill(I, output, label, i+1, j);
+    ret += myFloodFill(I, output, label, i-1, j);
+    ret += myFloodFill(I, output, label, i, j+1);
+    ret += myFloodFill(I, output, label, i, j-1);
+    return ret;
+}
 
+int myConnectedComponents(const Mat& I, Mat& output, int type) {
+    // Return number of components
+    // accept only char type matrices
+    CV_Assert(I.depth() == CV_8U);
+    CV_Assert(type==4);
+    int label = 1;
+
+    for(int i = 0; i < I.rows; ++i)
+    {
+        for (int j = 0; j < I.cols; ++j)
+        {
+            int filled = myFloodFill(I, output, label, i, j);
+            if (filled) {
+                label += 1;
+            }
+        }
+    }
+}
+*/
 vector<Point> punto_central_color(Mat imgThresholded, const string& color="") {
     erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
 //    dilate(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
 
-    Mat cc, ret;
+
+    Mat cc = Mat::zeros(imgThresholded.size(), CV_8U);
+    Mat ret;
+    QTime time;
+    time.start();
     int blobs = connectedComponents(imgThresholded, cc, 4);
+//    cout << "CONNECTED COMPONENTS " << time.elapsed() << endl;
+    vector<Point> puntos_color;
+    if (blobs > 4) {
+//        cout << "WARNING:" << "Mala calibracion, tengo mas de 3 de color " << color << endl;
+        return puntos_color;
+    }
     vector<Moments> mu(blobs-1);
     vector<Point2f> mc(blobs-1);
-    vector<Point> puntos_color;
 
     for (int i = 1; i < blobs; ++i) {
         inRange(cc, i, i, ret);
@@ -133,7 +178,8 @@ vector<Point> punto_central(const vector<Point>& color_equipo, const vector<Poin
 Point closest_candidate(const vector<Point>& candidates, const Point& last_position) {
     int min_dist_cuad = 10000000;
     Point closest(-1, -1);
-    for (int i = 0; i < candidates.size(); ++i) {
+
+    for (unsigned int i = 0; i < candidates.size(); ++i) {
         int a = last_position.x-candidates[i].x;
         int b = last_position.y-candidates[i].y;
         int dist_cuad = a*a + b*b;
@@ -179,35 +225,39 @@ void ShowVisionWidget::proc(Mat* frame) {
     Mat imgThresholded;
     Scalar lower_bound, upper_bound;
 
+    vector<Point> ptos_amarillo, ptos_azul, ptos_cyan, ptos_rojo, ptos_verde;
+
+    //// I already tried to use threads here (openmp) it makes it 1 ms slower due to memory issues
+
     /////////////////////////////////////////////////// AMARILLO
     lower_bound = Scalar(ch->yellowCalib.data[0], ch->yellowCalib.data[1], ch->yellowCalib.data[2]);
     upper_bound = Scalar(ch->yellowCalib.data[3], ch->yellowCalib.data[4], ch->yellowCalib.data[5]);
     inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
-    vector<Point> ptos_amarillo = punto_central_color(imgThresholded, "yellow");
+    ptos_amarillo = punto_central_color(imgThresholded, "yellow");
 
     /////////////////////////////////////////////////// AZUL
     lower_bound = Scalar(ch->blueCalib.data[0], ch->blueCalib.data[1], ch->blueCalib.data[2]);
     upper_bound = Scalar(ch->blueCalib.data[3], ch->blueCalib.data[4], ch->blueCalib.data[5]);
     inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
-    vector<Point> ptos_azul = punto_central_color(imgThresholded, "blue");
+    ptos_azul = punto_central_color(imgThresholded, "blue");
 
     /////////////////////////////////////////////////// ROJO
     lower_bound = Scalar(ch->redCalib.data[0], ch->redCalib.data[1], ch->redCalib.data[2]);
     upper_bound = Scalar(ch->redCalib.data[3], ch->redCalib.data[4], ch->redCalib.data[5]);
     inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
-    vector<Point> ptos_rojo = punto_central_color(imgThresholded, "red");
+    ptos_rojo = punto_central_color(imgThresholded, "red");
 
     /////////////////////////////////////////////////// VERDE
     lower_bound = Scalar(ch->greenCalib.data[0], ch->greenCalib.data[1], ch->greenCalib.data[2]);
     upper_bound = Scalar(ch->greenCalib.data[3], ch->greenCalib.data[4], ch->greenCalib.data[5]);
     inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
-    vector<Point> ptos_verde = punto_central_color(imgThresholded, "green");
+    ptos_verde = punto_central_color(imgThresholded, "green");
 
     /////////////////////////////////////////////////// CYAN
     lower_bound = Scalar(ch->skyblueCalib.data[0], ch->skyblueCalib.data[1], ch->skyblueCalib.data[2]);
     upper_bound = Scalar(ch->skyblueCalib.data[3], ch->skyblueCalib.data[4], ch->skyblueCalib.data[5]);
     inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
-    vector<Point> ptos_cyan = punto_central_color(imgThresholded, "skyblue");
+    ptos_cyan = punto_central_color(imgThresholded, "skyblue");
 
     cout << "TIME MEDIUM " << time.elapsed() << endl;
     //reset();
