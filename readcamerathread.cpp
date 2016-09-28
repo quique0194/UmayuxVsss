@@ -19,8 +19,13 @@ void ReadCameraThread::run() {
     cap = new VideoCapture(0);
 //    cap->set(CV_CAP_PROP_FRAME_WIDTH,352);
 //    cap->set(CV_CAP_PROP_FRAME_HEIGHT,288);
+
     cap->set(CV_CAP_PROP_FRAME_WIDTH,640);
     cap->set(CV_CAP_PROP_FRAME_HEIGHT,480);
+
+//    cap->set(CV_CAP_PROP_FRAME_WIDTH,640);
+//    cap->set(CV_CAP_PROP_FRAME_HEIGHT,360);
+
     cout << "WIDTH " << cap->get(CV_CAP_PROP_FRAME_WIDTH) << endl;
     cout << "HEIGHT " << cap->get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
     QTime time;

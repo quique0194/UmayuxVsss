@@ -6,14 +6,16 @@
 
 QT       += core gui
 QT       += network
+QMAKE_CXXFLAGS += -O3
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 
 TARGET = UMAYUX-VSSS
 TEMPLATE = app
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
+    mainwindow.cpp \
     readcamerathread.cpp \
     cutvideowidget.cpp \
     easydisablebtn.cpp \

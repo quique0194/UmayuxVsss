@@ -1,7 +1,7 @@
 #include "selectareavideowidget.h"
 
 SelectAreaVideoWidget::SelectAreaVideoWidget(QWidget *parent): QLabel(parent),
-    zoom(1.0), center(QPointF(0.5, 0.5)), selecting(false), dragging(false)
+    zoom(1.0), center(QPointF(0.5, 0.5)), selecting(false), dragging(false), img(NULL)
 {
 }
 
@@ -133,7 +133,7 @@ void SelectAreaVideoWidget::mouseReleaseEvent(QMouseEvent *ev)
     }
 }
 
-void SelectAreaVideoWidget::paintEvent(QPaintEvent *ev)
+void SelectAreaVideoWidget::paintEvent(QPaintEvent *)
 {
     if (img) {
         QPainter paint(this);

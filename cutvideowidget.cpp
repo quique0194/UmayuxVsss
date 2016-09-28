@@ -43,7 +43,7 @@ void CutVideoWidget::mouseReleaseEvent(QMouseEvent *ev)
     }
 }
 
-void CutVideoWidget::paintEvent(QPaintEvent *ev)
+void CutVideoWidget::paintEvent(QPaintEvent *)
 {
     if (img) {
         QPainter paint(this);
