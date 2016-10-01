@@ -28,14 +28,14 @@ public:
 protected:
     void paintEvent(QPaintEvent*);
 private:
-    bool validPoint(const Point& p);
-    Point find_ball(Mat);
+    bool validPoint(const Point2f& p);
+    Point2f find_ball(Mat);
     QImage* img;
     CalibrationHandler* ch;
-    vector<Point> my_team;
-    vector<Point> my_team_ori;
-    vector<Point> op_team;
-    Point ball;
+    vector<Point2f> my_team;
+    vector<Point2f> my_team_ori;
+    vector<Point2f> op_team;
+    Point2f ball;
     QUdpSocket socket;
 public slots:
     void reset();

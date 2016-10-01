@@ -62,12 +62,12 @@ void ReadCameraThread::run() {
         frames.push(ptr);
         emit newFrame(ptr);
 
-        Mat* blurred = new Mat();
-        QTime gt; gt.start();
-        GaussianBlur(img, *blurred, Size(9, 9), 0, 0);
+        Mat* blurred = new Mat(img);
+//        QTime gt; gt.start();
+        GaussianBlur(*blurred, *blurred, Size(3, 3), 0, 0);
 //        cout << "BLUR " << gt.elapsed() << endl;
         frames.push(blurred);
-//        emit newBlurred(blurred);
+        emit newBlurred(blurred);
         // FPS
         if (time.elapsed() >= 1000) {
             emit newFPS(fps);

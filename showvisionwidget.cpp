@@ -28,11 +28,11 @@ void ShowVisionWidget::setCalibrationHandler(CalibrationHandler* _ch)
     ch = _ch;
 }
 
-QPoint Point2QPoint(const Point& p) {
-    return QPoint(p.x, p.y);
+QPoint Point2QPoint(const Point2f& p) {
+    return QPoint(round(p.x), round(p.y));
 }
 
-bool ShowVisionWidget::validPoint(const Point& p) {
+bool ShowVisionWidget::validPoint(const Point2f& p) {
     if (!img) {
         return false;
     }
@@ -41,10 +41,10 @@ bool ShowVisionWidget::validPoint(const Point& p) {
 
 void ShowVisionWidget::reset()
 {
-    my_team.assign(3,Point(-1, -1));
-    my_team_ori.assign(3,Point(-1, -1));
-    op_team.assign(3,Point(-1, -1));
-    ball = Point(-1, -1);
+    my_team.assign(3,Point2f(-1, -1));
+    my_team_ori.assign(3,Point2f(-1, -1));
+    op_team.assign(3,Point2f(-1, -1));
+    ball = Point2f(-1, -1);
 }
 
 void ShowVisionWidget::paintEvent(QPaintEvent*)
@@ -59,9 +59,10 @@ void ShowVisionWidget::paintEvent(QPaintEvent*)
                 paint.setPen(Qt::green);
                 p = Point2QPoint(my_team[i]);
                 paint.drawEllipse(p, r, r);
-                q = Point2QPoint(my_team_ori[i]);
-                QPoint dir = q-p;
-                q = p + 4*dir;
+                Point2f dir = my_team_ori[i] - my_team[i];
+                Point2f ori = my_team[i] + 4*dir;
+//                cout << "pos " << my_team[i] << endl;
+                q = Point2QPoint(ori);
                 paint.drawLine(p, q);
             }
             if (validPoint(op_team[i])) {
@@ -115,7 +116,7 @@ int myConnectedComponents(const Mat& I, Mat& output, int type) {
     }
 }
 */
-vector<Point> punto_central_color(Mat imgThresholded, const string& color="") {
+vector<Point2f> punto_central_color(Mat imgThresholded, const string& color="") {
     erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
 //    if (color=="blue") {
 //        imshow("blue", imgThresholded);
@@ -132,7 +133,7 @@ vector<Point> punto_central_color(Mat imgThresholded, const string& color="") {
     time.start();
     int blobs = connectedComponents(imgThresholded, cc, 4);
 //    cout << "CONNECTED COMPONENTS " << time.elapsed() << endl;
-    vector<Point> puntos_color;
+    vector<Point2f> puntos_color;
     if (blobs > 4) {
 //        cout << "WARNING:" << "Mala calibracion, tengo mas de 3 de color " << color << endl;
         return puntos_color;
@@ -142,10 +143,8 @@ vector<Point> punto_central_color(Mat imgThresholded, const string& color="") {
 
     for (int i = 1; i < blobs; ++i) {
         inRange(cc, i, i, ret);
-        Rect br = boundingRect(ret);
-        Point p;
-        p.x = br.x + br.width/2;
-        p.y = br.y + br.height/2;
+        Moments m = moments(ret, true);
+        Point2f p(m.m10/m.m00 , m.m01/m.m00);
         puntos_color.push_back(p);
     }
 
@@ -153,10 +152,10 @@ vector<Point> punto_central_color(Mat imgThresholded, const string& color="") {
 }
 
 
-vector<Point> punto_central(const vector<Point>& color_equipo, const vector<Point>& color_jugador){
-    vector<Point> puntos_cercanos;
+vector<Point2f> punto_central(const vector<Point2f>& color_equipo, const vector<Point2f>& color_jugador){
+    vector<Point2f> puntos_cercanos;
     double dist_min = 20;
-    Point p1, p2, p_med;
+    Point2f p1, p2, p_med;
 
     for(size_t i=0; i<color_equipo.size(); i++){
         for(size_t j=0; j<color_jugador.size(); j++){
@@ -167,13 +166,13 @@ vector<Point> punto_central(const vector<Point>& color_equipo, const vector<Poin
                 dist_min = distancia;
                 p1 = color_equipo[i];
                 p2 = color_jugador[j];
-                p_med.x = (p1.x+p2.x)/2;
-                p_med.y = (p1.y+p2.y)/2;
+                p_med.x = (p1.x+p2.x)/2.0;
+                p_med.y = (p1.y+p2.y)/2.0;
             }
         }
     }
     if (dist_min == 20) {
-        p1 = p2 = p_med = Point(-1,-1);
+        p1 = p2 = p_med = Point2f(-1,-1);
     }
 
     puntos_cercanos.push_back(p1);
@@ -183,9 +182,9 @@ vector<Point> punto_central(const vector<Point>& color_equipo, const vector<Poin
     return puntos_cercanos;
 }
 
-Point closest_candidate(const vector<Point>& candidates, const Point& last_position) {
+Point2f closest_candidate(const vector<Point2f>& candidates, const Point2f& last_position) {
     int min_dist_cuad = 10000000;
-    Point closest(-1, -1);
+    Point2f closest(-1, -1);
 
     for (unsigned int i = 0; i < candidates.size(); ++i) {
         int a = last_position.x-candidates[i].x;
@@ -199,7 +198,7 @@ Point closest_candidate(const vector<Point>& candidates, const Point& last_posit
     return closest;
 }
 
-Point ShowVisionWidget::find_ball(Mat imgThresholded) {
+Point2f ShowVisionWidget::find_ball(Mat imgThresholded) {
     erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
     dilate(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
 
@@ -207,14 +206,14 @@ Point ShowVisionWidget::find_ball(Mat imgThresholded) {
     int blobs = connectedComponents(imgThresholded, cc, 4);
 
     vector<int> areas;
-    vector<Point> candidates;
+    vector<Point2f> candidates;
     for (int i = 1; i < blobs; ++i) {
         inRange(cc, i, i, ret);
         int area = countNonZero(ret);
         areas.push_back(area);
         Rect br = boundingRect(ret);
         if (area > 60 && area < 120 && abs(br.width-br.height) < 2) {
-            Point p;
+            Point2f p;
             p.x = br.x + br.width/2;
             p.y = br.y + br.height/2;
             candidates.push_back(p);
@@ -234,7 +233,7 @@ void ShowVisionWidget::proc(Mat* frame) {
     Mat imgThresholded;
     Scalar lower_bound, upper_bound;
 
-    vector<Point> ptos_amarillo, ptos_azul, ptos_cyan, ptos_rojo, ptos_verde;
+    vector<Point2f> ptos_amarillo, ptos_azul, ptos_cyan, ptos_rojo, ptos_verde;
 
     //// I already tried to use threads here (openmp) it makes it 1 ms slower due to memory issues
 
@@ -273,57 +272,57 @@ void ShowVisionWidget::proc(Mat* frame) {
 
     if (false) { // if my team is yellow
         //// JUGADOR_AMARILLO_ROJO
-        vector<Point> jugador_Am_Ro = punto_central(ptos_amarillo,ptos_rojo);
+        vector<Point2f> jugador_Am_Ro = punto_central(ptos_amarillo,ptos_rojo);
         my_team[0] = jugador_Am_Ro.at(2);
         my_team_ori[0] = jugador_Am_Ro.at(0);
 
         //// JUGADOR_AMARILLO_VERDE
-        vector<Point> jugador_Am_Ve = punto_central(ptos_amarillo,ptos_verde);
+        vector<Point2f> jugador_Am_Ve = punto_central(ptos_amarillo,ptos_verde);
         my_team[1] = jugador_Am_Ve.at(2);
         my_team_ori[1] = jugador_Am_Ve.at(0);
 
         //// JUGADOR_AMARILLO_CYAN
-        vector<Point> jugador_Am_Cy = punto_central(ptos_amarillo,ptos_cyan);
+        vector<Point2f> jugador_Am_Cy = punto_central(ptos_amarillo,ptos_cyan);
         my_team[2] = jugador_Am_Cy.at(2);
         my_team_ori[2] = jugador_Am_Cy.at(0);
 
         //// JUGADOR_AZUL_ROJO
-        vector<Point> jugador_Az_Ro = punto_central(ptos_azul,ptos_rojo);
+        vector<Point2f> jugador_Az_Ro = punto_central(ptos_azul,ptos_rojo);
         op_team[0] = jugador_Az_Ro.at(2);
 
         //// JUGADOR_AZUL_VERDE
-        vector<Point> jugador_Az_Ve = punto_central(ptos_azul,ptos_verde);
+        vector<Point2f> jugador_Az_Ve = punto_central(ptos_azul,ptos_verde);
         op_team[1] = jugador_Az_Ve.at(2);
 
         //// JUGADOR_AZUL_CYAN
-        vector<Point> jugador_Az_Cy = punto_central(ptos_azul,ptos_cyan);
+        vector<Point2f> jugador_Az_Cy = punto_central(ptos_azul,ptos_cyan);
         op_team[2] = jugador_Az_Cy.at(2);
     }
     else {
         //// JUGADOR_AMARILLO_ROJO
-        vector<Point> jugador_Am_Ro = punto_central(ptos_amarillo,ptos_rojo);
+        vector<Point2f> jugador_Am_Ro = punto_central(ptos_amarillo,ptos_rojo);
         op_team[0] = jugador_Am_Ro.at(2);
 
         //// JUGADOR_AMARILLO_VERDE
-        vector<Point> jugador_Am_Ve = punto_central(ptos_amarillo,ptos_verde);
+        vector<Point2f> jugador_Am_Ve = punto_central(ptos_amarillo,ptos_verde);
         op_team[1] = jugador_Am_Ve.at(2);
 
         //// JUGADOR_AMARILLO_CYAN
-        vector<Point> jugador_Am_Cy = punto_central(ptos_amarillo,ptos_cyan);
+        vector<Point2f> jugador_Am_Cy = punto_central(ptos_amarillo,ptos_cyan);
         op_team[2] = jugador_Am_Cy.at(2);
 
         //// JUGADOR_AZUL_ROJO
-        vector<Point> jugador_Az_Ro = punto_central(ptos_azul,ptos_rojo);
+        vector<Point2f> jugador_Az_Ro = punto_central(ptos_azul,ptos_rojo);
         my_team[0] = jugador_Az_Ro.at(2);
         my_team_ori[0] = jugador_Az_Ro.at(0);
 
         //// JUGADOR_AZUL_VERDE
-        vector<Point> jugador_Az_Ve = punto_central(ptos_azul,ptos_verde);
+        vector<Point2f> jugador_Az_Ve = punto_central(ptos_azul,ptos_verde);
         my_team[1] = jugador_Az_Ve.at(2);
         my_team_ori[1] = jugador_Az_Ve.at(0);
 
         //// JUGADOR_AZUL_CYAN
-        vector<Point> jugador_Az_Cy = punto_central(ptos_azul,ptos_cyan);
+        vector<Point2f> jugador_Az_Cy = punto_central(ptos_azul,ptos_cyan);
         my_team[2] = jugador_Az_Cy.at(2);
         my_team_ori[2] = jugador_Az_Cy.at(0);
     }
