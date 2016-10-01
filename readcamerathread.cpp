@@ -39,6 +39,7 @@ void ReadCameraThread::run() {
             continue;
         }
         else {
+            // Speed up vision processes
             resize(img, img, Size(480, 360));
         }
         cvtColor(img, img, CV_BGR2RGB);
@@ -51,13 +52,22 @@ void ReadCameraThread::run() {
             Mat cropped = img(cv_roi);
             cropped.copyTo(img);
         }
-        if (frames.size() > 300) {
+        if (frames.size() > 100) {
+            delete frames.front();
+            frames.pop();
             delete frames.front();
             frames.pop();
         }
         Mat* ptr = new Mat(img);
         frames.push(ptr);
         emit newFrame(ptr);
+
+        Mat* blurred = new Mat();
+        QTime gt; gt.start();
+        GaussianBlur(img, *blurred, Size(9, 9), 0, 0);
+//        cout << "BLUR " << gt.elapsed() << endl;
+        frames.push(blurred);
+//        emit newBlurred(blurred);
         // FPS
         if (time.elapsed() >= 1000) {
             emit newFPS(fps);

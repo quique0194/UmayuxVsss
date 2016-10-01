@@ -32,6 +32,7 @@ private:
     int fps;
 signals:
     void newFrame(Mat* frame);
+    void newBlurred(Mat* frame);
     void newFPS(int fps);
     void newFPS(QString fps);
 public slots:

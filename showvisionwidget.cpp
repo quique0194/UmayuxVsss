@@ -60,6 +60,8 @@ void ShowVisionWidget::paintEvent(QPaintEvent*)
                 p = Point2QPoint(my_team[i]);
                 paint.drawEllipse(p, r, r);
                 q = Point2QPoint(my_team_ori[i]);
+                QPoint dir = q-p;
+                q = p + 4*dir;
                 paint.drawLine(p, q);
             }
             if (validPoint(op_team[i])) {
@@ -115,6 +117,12 @@ int myConnectedComponents(const Mat& I, Mat& output, int type) {
 */
 vector<Point> punto_central_color(Mat imgThresholded, const string& color="") {
     erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
+//    if (color=="blue") {
+//        imshow("blue", imgThresholded);
+//    }
+//    if (color=="green") {
+//        imshow("green", imgThresholded);
+//    }
 //    dilate(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
 
 
@@ -222,6 +230,7 @@ void ShowVisionWidget::proc(Mat* frame) {
     }
     QTime time;
     time.start();
+    Mat input = *frame;
     Mat imgThresholded;
     Scalar lower_bound, upper_bound;
 
@@ -232,69 +241,100 @@ void ShowVisionWidget::proc(Mat* frame) {
     /////////////////////////////////////////////////// AMARILLO
     lower_bound = Scalar(ch->yellowCalib.data[0], ch->yellowCalib.data[1], ch->yellowCalib.data[2]);
     upper_bound = Scalar(ch->yellowCalib.data[3], ch->yellowCalib.data[4], ch->yellowCalib.data[5]);
-    inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
+    inRange(input, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ptos_amarillo = punto_central_color(imgThresholded, "yellow");
 
     /////////////////////////////////////////////////// AZUL
     lower_bound = Scalar(ch->blueCalib.data[0], ch->blueCalib.data[1], ch->blueCalib.data[2]);
     upper_bound = Scalar(ch->blueCalib.data[3], ch->blueCalib.data[4], ch->blueCalib.data[5]);
-    inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
+    inRange(input, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ptos_azul = punto_central_color(imgThresholded, "blue");
 
     /////////////////////////////////////////////////// ROJO
     lower_bound = Scalar(ch->redCalib.data[0], ch->redCalib.data[1], ch->redCalib.data[2]);
     upper_bound = Scalar(ch->redCalib.data[3], ch->redCalib.data[4], ch->redCalib.data[5]);
-    inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
+    inRange(input, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ptos_rojo = punto_central_color(imgThresholded, "red");
 
     /////////////////////////////////////////////////// VERDE
     lower_bound = Scalar(ch->greenCalib.data[0], ch->greenCalib.data[1], ch->greenCalib.data[2]);
     upper_bound = Scalar(ch->greenCalib.data[3], ch->greenCalib.data[4], ch->greenCalib.data[5]);
-    inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
+    inRange(input, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ptos_verde = punto_central_color(imgThresholded, "green");
 
     /////////////////////////////////////////////////// CYAN
     lower_bound = Scalar(ch->skyblueCalib.data[0], ch->skyblueCalib.data[1], ch->skyblueCalib.data[2]);
     upper_bound = Scalar(ch->skyblueCalib.data[3], ch->skyblueCalib.data[4], ch->skyblueCalib.data[5]);
-    inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
+    inRange(input, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ptos_cyan = punto_central_color(imgThresholded, "skyblue");
 
-    cout << "TIME MEDIUM " << time.elapsed() << endl;
-    //reset();
+//    cout << "TIME MEDIUM " << time.elapsed() << endl;
+    reset();
 
-    //// JUGADOR_AMARILLO_ROJO
-    vector<Point> jugador_Am_Ro = punto_central(ptos_amarillo,ptos_rojo);
-    my_team[0] = jugador_Am_Ro.at(2);
-    my_team_ori[0] = jugador_Am_Ro.at(0);
+    if (false) { // if my team is yellow
+        //// JUGADOR_AMARILLO_ROJO
+        vector<Point> jugador_Am_Ro = punto_central(ptos_amarillo,ptos_rojo);
+        my_team[0] = jugador_Am_Ro.at(2);
+        my_team_ori[0] = jugador_Am_Ro.at(0);
 
-    //// JUGADOR_AMARILLO_VERDE
-    vector<Point> jugador_Am_Ve = punto_central(ptos_amarillo,ptos_verde);
-    my_team[1] = jugador_Am_Ve.at(2);
-    my_team_ori[1] = jugador_Am_Ve.at(0);
+        //// JUGADOR_AMARILLO_VERDE
+        vector<Point> jugador_Am_Ve = punto_central(ptos_amarillo,ptos_verde);
+        my_team[1] = jugador_Am_Ve.at(2);
+        my_team_ori[1] = jugador_Am_Ve.at(0);
 
-    //// JUGADOR_AMARILLO_CYAN
-    vector<Point> jugador_Am_Cy = punto_central(ptos_amarillo,ptos_cyan);
-    my_team[2] = jugador_Am_Cy.at(2);
-    my_team_ori[2] = jugador_Am_Cy.at(0);
+        //// JUGADOR_AMARILLO_CYAN
+        vector<Point> jugador_Am_Cy = punto_central(ptos_amarillo,ptos_cyan);
+        my_team[2] = jugador_Am_Cy.at(2);
+        my_team_ori[2] = jugador_Am_Cy.at(0);
 
-    //// JUGADOR_AZUL_ROJO
-    vector<Point> jugador_Az_Ro = punto_central(ptos_azul,ptos_rojo);
-    op_team[0] = jugador_Az_Ro.at(2);
+        //// JUGADOR_AZUL_ROJO
+        vector<Point> jugador_Az_Ro = punto_central(ptos_azul,ptos_rojo);
+        op_team[0] = jugador_Az_Ro.at(2);
 
-    //// JUGADOR_AZUL_VERDE
-    vector<Point> jugador_Az_Ve = punto_central(ptos_azul,ptos_verde);
-    op_team[1] = jugador_Az_Ve.at(2);
+        //// JUGADOR_AZUL_VERDE
+        vector<Point> jugador_Az_Ve = punto_central(ptos_azul,ptos_verde);
+        op_team[1] = jugador_Az_Ve.at(2);
 
-    //// JUGADOR_AZUL_CYAN
-    vector<Point> jugador_Az_Cy = punto_central(ptos_azul,ptos_cyan);
-    op_team[2] = jugador_Az_Cy.at(2);
+        //// JUGADOR_AZUL_CYAN
+        vector<Point> jugador_Az_Cy = punto_central(ptos_azul,ptos_cyan);
+        op_team[2] = jugador_Az_Cy.at(2);
+    }
+    else {
+        //// JUGADOR_AMARILLO_ROJO
+        vector<Point> jugador_Am_Ro = punto_central(ptos_amarillo,ptos_rojo);
+        op_team[0] = jugador_Am_Ro.at(2);
+
+        //// JUGADOR_AMARILLO_VERDE
+        vector<Point> jugador_Am_Ve = punto_central(ptos_amarillo,ptos_verde);
+        op_team[1] = jugador_Am_Ve.at(2);
+
+        //// JUGADOR_AMARILLO_CYAN
+        vector<Point> jugador_Am_Cy = punto_central(ptos_amarillo,ptos_cyan);
+        op_team[2] = jugador_Am_Cy.at(2);
+
+        //// JUGADOR_AZUL_ROJO
+        vector<Point> jugador_Az_Ro = punto_central(ptos_azul,ptos_rojo);
+        my_team[0] = jugador_Az_Ro.at(2);
+        my_team_ori[0] = jugador_Az_Ro.at(0);
+
+        //// JUGADOR_AZUL_VERDE
+        vector<Point> jugador_Az_Ve = punto_central(ptos_azul,ptos_verde);
+        my_team[1] = jugador_Az_Ve.at(2);
+        my_team_ori[1] = jugador_Az_Ve.at(0);
+
+        //// JUGADOR_AZUL_CYAN
+        vector<Point> jugador_Az_Cy = punto_central(ptos_azul,ptos_cyan);
+        my_team[2] = jugador_Az_Cy.at(2);
+        my_team_ori[2] = jugador_Az_Cy.at(0);
+    }
+
 
     //// BALL
     lower_bound = Scalar(ch->orangeCalib.data[0], ch->orangeCalib.data[1], ch->orangeCalib.data[2]);
     upper_bound = Scalar(ch->orangeCalib.data[3], ch->orangeCalib.data[4], ch->orangeCalib.data[5]);
     inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ball = find_ball(imgThresholded);
-    cout << "TIME PROC " << time.elapsed() << endl;
+//    cout << "TIME PROC " << time.elapsed() << endl;
 
     //// SEND INFO
     /*[x,y,theta] de red, [x,y,theta] de red, [x,y] pelota*/
