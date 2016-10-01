@@ -341,6 +341,7 @@ void ShowVisionWidget::proc(Mat* frame) {
         1.0, 2.0,3.0
     };
     socket.writeDatagram((char*)data, sizeof(data), QHostAddress("127.0.0.1"), 9002);
+    repaint();
 }
 
 
@@ -352,7 +353,6 @@ void ShowVisionWidget::setFrame(Mat *frame)
         delete img;
     }
     img = new QImage(qimg);
-    repaint();
     if (width() != img->width()) {
         resize(img->width(), img->height());
         updateGeometry();
