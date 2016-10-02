@@ -22,12 +22,14 @@ public:
     void setData(int x0=255, int x1=0, int y0=255, int y1=0, int z0=255, int z1=0);
     string toString();
     vector<uchar> data;
+    string color;
 private:
     void saveState();
     deque< vector<uchar> > previous;
 signals:
     void newCalibration(Calibration* cal);
 public slots:
+    void newRedRegion(QImage img);
     void newRegion(QImage img);
     void setX0(int);
     void setX1(int);

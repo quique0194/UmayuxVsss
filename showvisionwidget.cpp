@@ -230,6 +230,8 @@ void ShowVisionWidget::proc(Mat* frame) {
     QTime time;
     time.start();
     Mat input = *frame;
+    Mat hsv;
+    cvtColor(input, hsv, CV_BGR2HSV);
     Mat imgThresholded;
     Scalar lower_bound, upper_bound;
 
@@ -240,13 +242,13 @@ void ShowVisionWidget::proc(Mat* frame) {
     /////////////////////////////////////////////////// AMARILLO
     lower_bound = Scalar(ch->yellowCalib.data[0], ch->yellowCalib.data[1], ch->yellowCalib.data[2]);
     upper_bound = Scalar(ch->yellowCalib.data[3], ch->yellowCalib.data[4], ch->yellowCalib.data[5]);
-    inRange(input, lower_bound, upper_bound, imgThresholded); //Threshold the image
+    inRange(hsv, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ptos_amarillo = punto_central_color(imgThresholded, "yellow");
 
     /////////////////////////////////////////////////// AZUL
     lower_bound = Scalar(ch->blueCalib.data[0], ch->blueCalib.data[1], ch->blueCalib.data[2]);
     upper_bound = Scalar(ch->blueCalib.data[3], ch->blueCalib.data[4], ch->blueCalib.data[5]);
-    inRange(input, lower_bound, upper_bound, imgThresholded); //Threshold the image
+    inRange(hsv, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ptos_azul = punto_central_color(imgThresholded, "blue");
 
     /////////////////////////////////////////////////// ROJO
@@ -258,13 +260,13 @@ void ShowVisionWidget::proc(Mat* frame) {
     /////////////////////////////////////////////////// VERDE
     lower_bound = Scalar(ch->greenCalib.data[0], ch->greenCalib.data[1], ch->greenCalib.data[2]);
     upper_bound = Scalar(ch->greenCalib.data[3], ch->greenCalib.data[4], ch->greenCalib.data[5]);
-    inRange(input, lower_bound, upper_bound, imgThresholded); //Threshold the image
+    inRange(hsv, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ptos_verde = punto_central_color(imgThresholded, "green");
 
     /////////////////////////////////////////////////// CYAN
     lower_bound = Scalar(ch->skyblueCalib.data[0], ch->skyblueCalib.data[1], ch->skyblueCalib.data[2]);
     upper_bound = Scalar(ch->skyblueCalib.data[3], ch->skyblueCalib.data[4], ch->skyblueCalib.data[5]);
-    inRange(input, lower_bound, upper_bound, imgThresholded); //Threshold the image
+    inRange(hsv, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ptos_cyan = punto_central_color(imgThresholded, "skyblue");
 
 //    cout << "TIME MEDIUM " << time.elapsed() << endl;

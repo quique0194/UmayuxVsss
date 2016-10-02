@@ -39,8 +39,11 @@ void ShowInRangeWidget::setFrame(Mat *frame)
     if (!isVisible() || calib == NULL) {
         return;
     }
-    Mat binarized;
-    inRange(*frame, Scalar(calib->data[0], calib->data[1], calib->data[2]),
+    Mat binarized = *frame;
+    if (calib->color != "red") {
+        cvtColor(binarized, binarized, CV_BGR2HSV);
+    }
+    inRange(binarized, Scalar(calib->data[0], calib->data[1], calib->data[2]),
             Scalar(calib->data[3], calib->data[4], calib->data[5]), binarized);
     cvtColor(binarized, binarized, CV_GRAY2RGB);
     QImage qimg((uchar*)binarized.data, binarized.cols, binarized.rows, binarized.step, QImage::Format_RGB888);

@@ -20,6 +20,13 @@ CalibrationHandler::CalibrationHandler()
     }
     file.close();
 
+    blueCalib.color = "blue";
+    yellowCalib.color = "yellow";
+    orangeCalib.color = "orange";
+    redCalib.color = "red";
+    greenCalib.color = "green";
+    skyblueCalib.color = "skyblue";
+
     QObject::connect(&blueCalib, SIGNAL(newCalibration(Calibration*)), this, SLOT(emitNewCalibration(Calibration*)));
     QObject::connect(&yellowCalib, SIGNAL(newCalibration(Calibration*)), this, SLOT(emitNewCalibration(Calibration*)));
     QObject::connect(&orangeCalib, SIGNAL(newCalibration(Calibration*)), this, SLOT(emitNewCalibration(Calibration*)));
@@ -83,7 +90,11 @@ void CalibrationHandler::emitNewCalibration(Calibration *calib)
 
 void CalibrationHandler::newRegion(QImage img)
 {
-    currentCalib->newRegion(img);
+    if (currentCalib == &redCalib) {
+        currentCalib->newRedRegion(img);
+    } else {
+        currentCalib->newRegion(img);
+    }
 }
 
 void CalibrationHandler::setX0(int v)
