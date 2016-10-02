@@ -134,7 +134,7 @@ vector<Point2f> punto_central_color(Mat imgThresholded, const string& color="") 
     int blobs = connectedComponents(imgThresholded, cc, 4);
 //    cout << "CONNECTED COMPONENTS " << time.elapsed() << endl;
     vector<Point2f> puntos_color;
-    if (blobs > 4) {
+    if (blobs > 5) {
 //        cout << "WARNING:" << "Mala calibracion, tengo mas de 3 de color " << color << endl;
         return puntos_color;
     }
@@ -143,8 +143,11 @@ vector<Point2f> punto_central_color(Mat imgThresholded, const string& color="") 
 
     for (int i = 1; i < blobs; ++i) {
         inRange(cc, i, i, ret);
-        Moments m = moments(ret, true);
-        Point2f p(m.m10/m.m00 , m.m01/m.m00);
+        Rect bb = boundingRect(ret);
+        Mat cropped = ret(bb);
+        Moments m = moments(cropped, true);
+        Point2f temp(m.m10/m.m00 , m.m01/m.m00);
+        Point2f p = temp + Point2f(bb.tl());
         puntos_color.push_back(p);
     }
 
@@ -154,24 +157,24 @@ vector<Point2f> punto_central_color(Mat imgThresholded, const string& color="") 
 
 vector<Point2f> punto_central(const vector<Point2f>& color_equipo, const vector<Point2f>& color_jugador){
     vector<Point2f> puntos_cercanos;
-    double dist_min = 20;
+    double dist_min = 400;
     Point2f p1, p2, p_med;
 
     for(size_t i=0; i<color_equipo.size(); i++){
         for(size_t j=0; j<color_jugador.size(); j++){
-            int a = color_equipo[i].x - color_jugador[j].x;
-            int b = color_equipo[i].y - color_jugador[j].y;
-            double distancia = sqrt(a*a + b*b);
-            if (distancia < dist_min){
-                dist_min = distancia;
+            float a = color_equipo[i].x - color_jugador[j].x;
+            float b = color_equipo[i].y - color_jugador[j].y;
+            double distancia_cuad = a*a + b*b;
+            if (distancia_cuad < dist_min){
+                dist_min = distancia_cuad;
                 p1 = color_equipo[i];
                 p2 = color_jugador[j];
-                p_med.x = (p1.x+p2.x)/2.0;
-                p_med.y = (p1.y+p2.y)/2.0;
+                p_med.x = (p1.x + p2.x)/2.0;
+                p_med.y = (p1.y + p2.y)/2.0;
             }
         }
     }
-    if (dist_min == 20) {
+    if (dist_min == 400) {
         p1 = p2 = p_med = Point2f(-1,-1);
     }
 
@@ -335,15 +338,49 @@ void ShowVisionWidget::proc(Mat* frame) {
     upper_bound = Scalar(ch->orangeCalib.data[3], ch->orangeCalib.data[4], ch->orangeCalib.data[5]);
     inRange(*frame, lower_bound, upper_bound, imgThresholded); //Threshold the image
     ball = find_ball(imgThresholded);
-//    cout << "TIME PROC " << time.elapsed() << endl;
+    cout << "TIME PROC " << time.elapsed() << endl;
 
     //// SEND INFO
     /*[x,y,theta] de red, [x,y,theta] de red, [x,y] pelota*/
+    Point2f r1 = point2Strategy(my_team[0]);
+    Point2f r2 = point2Strategy(my_team[1]);
+    Point2f r3 = point2Strategy(my_team[2]);
+    float theta1 = getOrientation(my_team[0], my_team_ori[0]);
+    float theta2 = getOrientation(my_team[1], my_team_ori[1]);
+    float theta3 = getOrientation(my_team[2], my_team_ori[2]);
+
+    Point2f o1 = point2Strategy(op_team[0]);
+    Point2f o2 = point2Strategy(op_team[1]);
+    Point2f o3 = point2Strategy(op_team[2]);
+
+    Point2f b = point2Strategy(ball);
+
     float data[] = {
-        1.0, 2.0,3.0
+        r1.x, r1.y, theta1,
+        r2.x, r2.y, theta2,
+        r3.x, r3.y, theta3,
+        o1.x, o1.y, 0.0,
+        o2.x, o2.y, 0.0,
+        o3.x, o3.y, 0.0,
+        b.x, b.y
     };
     socket.writeDatagram((char*)data, sizeof(data), QHostAddress("127.0.0.1"), 9002);
     repaint();
+    cout << "TOTAL " << time.elapsed() << endl;
+}
+
+Point2f ShowVisionWidget::point2Strategy(const Point2f& p) {
+    Point2f size(img->width(), img->height());
+    Point2f halfsize = size/2.0;
+    Point2f ret = p - halfsize;
+    ret.x = 85.0*ret.x/halfsize.x;
+    ret.y = 65.0*ret.y/halfsize.y;
+    ret.y = -ret.y;
+    return ret;
+}
+
+float ShowVisionWidget::getOrientation(const Point2f& a, const Point2f& b) {
+    return atan2(-(b.y-a.y), b.x-a.x) * 180.0 / M_PI;
 }
 
 

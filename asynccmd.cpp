@@ -26,7 +26,7 @@ void AsyncCmd::run()
             emit cmd_started();
             bool finished = false;
             while (!finished) {
-                finished = process.waitForFinished(100);
+                finished = process.waitForFinished(2000);
                 QString output = process.readAllStandardOutput();
                 QString output_error = process.readAllStandardError();
                 output.append(output_error);

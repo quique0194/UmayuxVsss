@@ -1,6 +1,7 @@
 #ifndef SHOWVISIONWIDGET_H
 #define SHOWVISIONWIDGET_H
 
+#include <math.h>
 #include <iostream>
 #include <string>
 #include <QWidget>
@@ -29,6 +30,8 @@ protected:
     void paintEvent(QPaintEvent*);
 private:
     bool validPoint(const Point2f& p);
+    Point2f point2Strategy(const Point2f& p);
+    float getOrientation(const Point2f& a, const Point2f& b);
     Point2f find_ball(Mat);
     QImage* img;
     CalibrationHandler* ch;

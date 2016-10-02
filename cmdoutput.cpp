@@ -14,7 +14,7 @@ void CmdOutput::appendText(QString newText)
 {
     QString prev = text();
     prev.append(newText);
-    prev.remove(0, max(0, prev.size()-300));
+    prev.remove(0, max(0, prev.size()-2000));
     setText(prev);
 }
 

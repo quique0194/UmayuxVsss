@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //// EXTERNAL COMMANDS
     QStringList params;
     params << "-u";     // -u makes writes to stdout unbuffered
-    params << "E:\\codigos\\borrame\\strategy.py";
+    params << "C:/Users/victo/Documents/vsss2015_Strategy/utils/seguir_balon.py";
     strategyCmd = new AsyncCmd(QString("python"), params);
     strategyCmd->start();
 
